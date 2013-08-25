@@ -1,4 +1,3 @@
-
 #!/usr/bin/python
 """Config parses a supersid's .cfg file
 
@@ -168,7 +167,7 @@ class Config(dict):
         
         # check log_format
         self['log_format'] = self['log_format'].lower()
-        if self['log_format'] not in ('sid_format','supersid_format', 'supersid_exended'):
+        if self['log_format'] not in ('sid_format','supersid_format', 'supersid_extended'):
             self.config_ok = False
             self.config_err = "'log_format' must be either 'sid_format' or 'supersid_format'/'supersid_extended'."
             return     
