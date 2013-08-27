@@ -1,4 +1,4 @@
-supersid
+SuperSID
 ========
 
 Cross-platform Sudden Ionospheric Disturbances (SID) monitor
