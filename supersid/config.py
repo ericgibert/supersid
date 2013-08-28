@@ -63,8 +63,7 @@ class Config(dict):
 
                       "Capture":   (("Audio", str, 'pyaudio'),          # soundcard: alsaaudio or pyaudio ; server
                                     ("Card", str, 'External'),          # alsaaudio: card name for capture
-                                    ("PeriodSize", int, 128),           # alsaaudio: period sizefor capture
-                                    ("Continue", str, "")               # file path: read the (raw) file and continue data recording
+                                    ("PeriodSize", int, 128)            # alsaaudio: period sizefor capture
                                     ),
 
                       "Linux":     (("Audio", str, 'pyaudio'),          # soundcard: alsaaudio or pyaudio ; server

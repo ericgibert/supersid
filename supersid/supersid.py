@@ -15,20 +15,30 @@
     - <still missing> network management with client-server protocol
 
 """
+from __future__ import print_function   # use the new Python 3 'print' function
 import sys
+import os.path
 # matplotlib ONLY used in Controller for its PSD function, not for any graphic 
 from matplotlib.mlab import psd as mlab_psd
-# wx.App() object is necessary in Controller to run the event loop, not for any graphic 
-from wx import App
 from time import sleep
+import argparse
 
 # SuperSID Package classes
 from sidtimer import SidTimer
 from sampler import Sampler
 from config import Config
 from logger import Logger
-from wxsidviewer import wxSidViewer
 from textsidviewer import textSidViewer
+
+# special case: 'wx' module might not be installed (text mode only) or even available (python 3)
+try:
+    # wx.App() object is necessary in Controller to run the event loop, not for any graphic 
+    from wx import App
+    from wxsidviewer import wxSidViewer
+    wx_imported = True
+except ImportError:
+    print("'wx' module not imported. Text mode only.")
+    wx_imported = False
 
 class SuperSID():
     '''
@@ -37,27 +47,27 @@ class SuperSID():
     '''
     running = False  # class attribute to indicate if the SID application is running
     
-    def __init__(self):
+    def __init__(self, config_file='', read_file=''):
         self.version = "1.3.1 20130817"
         self.timer = None
         self.sampler = None
         self.viewer = None
         
         # Read Config file here
-        print "Reading supersid.cfg ...",
+        print("Reading supersid.cfg ...", end='')
         # this script accepts a .cfg file as optional argument else we default
         # so that the "historical location" or the local path are explored
-        self.config = Config(sys.argv[1] if len(sys.argv) == 2 else "supersid.cfg")
+        self.config = Config(config_file or "supersid.cfg")
         # once the .cfg read, some sanity checks are necessary
         self.config.supersid_check()
         if not self.config.config_ok:
-            print "ERROR:", self.config.config_err
+            print("ERROR:", self.config.config_err)
             exit(1)
         else:
-            print self.config.filenames # good for debugging: what .cfg file(s) were actually read
+            print(self.config.filenames) # good for debugging: what .cfg file(s) were actually read
             
-        # Create Logger - NEW: Logger will read an existing file if specified in .cfg as [Capture].Continue
-        self.logger = Logger(self)
+        # Create Logger - NEW: Logger will read an existing file if specified as -R script argument
+        self.logger = Logger(self, read_file)
                    
         # Create the viewer based on the .cfg specification (or set default):
         # Note: the list of Viewers can be extended provided they implement the same interface
@@ -67,7 +77,7 @@ class SuperSID():
         elif self.config['viewer'] == 'text':   # Lighter text version a.k.a. "console mode"
             self.viewer = textSidViewer(self)
         else:
-            print "ERROR: Unknown viewer", sid.config['viewer']
+            print("ERROR: Unknown viewer", sid.config['viewer'])
             exit(2)
             
         # Assign desired psd function for calculation after capture
@@ -114,10 +124,10 @@ class SuperSID():
             data = self.sampler.capture_1sec()  # return a list of 1 second signal strength
             Pxx, freqs = self.psd(data, self.sampler.NFFT, self.sampler.audio_sampling_rate)
         except IndexError as idxerr:
-            print "Index Error:", idxerr
-            print "Data len:", len(data)
+            print("Index Error:", idxerr)
+            print("Data len:", len(data))
 
-        # Save signal strengths into buffers and Display on status bar
+        # Save signal strengths into memory buffers ; prepare message for status bar
         signal_strengths = []
         for binSample in self.sampler.monitored_bins:
             signal_strengths.append(Pxx[binSample])
@@ -127,6 +137,10 @@ class SuperSID():
             message +=  station['call_sign'] + "=%f " % strength
         self.logger.file.timestamp[self.current_index] = self.timer.utc_now
 
+        # Auto-save every hour: raw buffers 'on the hour' in raw/superSID extended format
+        if self.config['hourly_save'] == 'YES' and (self.current_index * self.config['log_interval']) % 3600 == 0:
+            fileName = "hourly_current_buffers.raw.ext." + self.timer.get_utc_now()[:10]+".csv"
+            self.save_current_buffers(fileName, 'raw', 'supersid_format', extended = True)  
         
         # When hitting the buffer limit, clear buffers, reset index, set to next date' epoch
         if self.current_index >= self.buffer_size - 1:
@@ -134,14 +148,7 @@ class SuperSID():
             # Restart a new day
             self.clear_all_data_buffers() 
             self.current_index = 0
-            self.timer.date_begin_epoch += 60*60*24
-
-        elif self.config['hourly_save'] == 'YES': # save raw buffers 'on the hour' in raw/superSID format
-            if (self.current_index * self.config['log_interval']) % 3600 == 0:
-                fileName = "hourly_current_buffers." + self.timer.get_utc_now()[:10]+".csv"
-                self.save_current_buffers(fileName, 'filtered', 'supersid_format')
-                fileName = "hourly_current_buffers.raw." + self.timer.get_utc_now()[:10]+".csv"
-                self.save_current_buffers(fileName, 'raw', 'supersid_format')       
+            self.timer.date_begin_epoch += 60*60*24    
 
         # end of this thread/need to handle to View to display captured data & message
         self.viewer.status_display(message, level=2)
@@ -160,11 +167,11 @@ class SuperSID():
     def on_close(self):
         self.close()
             
-    def run(self, app = None):
+    def run(self, wx_app = None):
         """Start the application as infinite loop accordingly to need"""
         self.__class__.running = True
         if self.config['viewer'] == 'wx':
-            app.MainLoop()
+            wx_app.MainLoop()
         elif self.config['viewer'] == 'text':
             try:
                 while(self.__class__.running):
@@ -185,17 +192,26 @@ class SuperSID():
 
 
 #-------------------------------------------------------------------------------
+def exist_file(x):
+    """
+    'Type' for argparse - checks that file exists but does not open.
+    """
+    if not os.path.isfile(x):
+        raise argparse.ArgumentError("{0} does not exist".format(x))
+    return x
 
 if __name__ == '__main__':
-    try:
-        app = App(redirect=False)  # wx application - mandatory for viewer = 'wx', ignored for other viewer
-    except:
-        print("wx not initialized. Text mode only.")
-        app = None
-        
-    sid = SuperSID()
-    sid.run(app)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--read", dest="filename", required=False, type=exist_file, 
+                        help="Read raw file and continue recording")
+    parser.add_argument('config_file', nargs='?', default='')
+    args, unk = parser.parse_known_args()
+    
+    # wx application - mandatory for viewer = 'wx', ignored for other viewer
+    wx_app = App(redirect=False) if wx_imported else None       
+    sid = SuperSID(config_file=args.config_file, read_file=args.filename)
+    sid.run(wx_app=wx_app)
     sid.close()
-    if app: app.Exit()
+    if wx_app: wx_app.Exit()
 
 
