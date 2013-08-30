@@ -1,4 +1,3 @@
-=================================
 Running SuperSID on Raspberry Pi
 =================================
 
@@ -7,12 +6,14 @@ SuperSID is written in for Python 2.7. It needs extra modules and a working soun
 A) Extra modules
 ================
 
-:matplotlib: ``# apt-get install python-matplotlib``
+For *Debian Wheezy*:
 
-:wxPython: ``# apt-get install python-wxgtk2.8``
+ * matplotlib: ````# apt-get install python-matplotlib````
+ * wxPython: ````# apt-get install python-wxgtk2.8````
 
-	or ``sudo yum install wxPython``
-           ``sudo yum install python-matplotlib-wx``
+For *Fedora 18 Mix*:
+ * wxPython:````sudo yum install wxPython````
+ * matplotlib: ````sudo yum install python-matplotlib-wx````
 
 
 
