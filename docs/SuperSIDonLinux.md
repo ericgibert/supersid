@@ -7,20 +7,17 @@ Program is tested on both Fedora 16 on Desktop PC and Debian Wheezy on **Raspber
 ## Python Requirements ##
 
 	* Python 2.7.2
-	* Python 2.7 scipy-0.10.0
-	* Python 2.7 numpy-1.6.1
-	* Python 2.7 matplotlib-1.1.0
+	* ~~Python 2.7 scipy-0.10.0~~
+	* Python 2.7 numpy-1.6.1 or higher
+	* Python 2.7 matplotlib-1.1.0 or higher
 	* wxPython 2.8.12.1 (unicode) for Python 2.7
-	* Python 2.7 PyAudio
+	* Python 2.7 PyAudio OR pyAlsaAudio (recommended)
 
 
 
 + matplotlib:  
  > `# yum/apt-get install matplotlib`
  > `# yum/apt-get install python-matplotlib`
-
-+ scipy  
- > `# yum/apt-get install scipy`
 
 
 ## Sound Card Configuration ##
@@ -34,7 +31,7 @@ After various unsuccessful attempts to run SuperSID with PyAudio, I decided to s
 ## Specific `supersid.cfg` Entry ##
 A new section for specific Linux needs can be declared in `Config/supersid.cfg`. 
 
->`[Linux]  
+>`[Capture]  
 Card=External  
 PeriodSize=128  `
 
