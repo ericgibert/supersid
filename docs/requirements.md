@@ -1,15 +1,25 @@
-
 SuperSID is written in for Python 2.7.
 
-Moving to Python 3.3 is part of the "to do list" but wxPython is still  not available. Nevertheless, the possibility to run the application in text mode should be considered as a first step
+Moving to Python 3.3 is part of the "to do list" but *wxPython* is still  not available. Nevertheless, we are looking to be able to run the application in text mode as a first step.
 
 Python dependencies
 -------------------
 
 SuperSID needs the following modules and their dependencies:
 
- - matplotlib: ``# apt-get install python-matplotlib`` (this will install *numpy* too)
- - wxPython: ``# apt-get install python-wxgtk2.8``
+For *Debian*:
+ * wxPython: ````# apt-get install python-wxgtk2.8````
+ * matplotlib: ````# apt-get install python-matplotlib```` (this will install *numpy* too)
+
+For *Fedora 18*:
+ * wxPython:````sudo yum install wxPython````
+ * matplotlib: ````sudo yum install python-matplotlib-wx```` (this will install *numpy* too)
+
+
+For all distro:
+ * alsa tools:	````sudo yum/apt-get install alsa-utils````
+then using alsamixer, verify that the USB sound card is detected and that the volume of input is 85%.
+
 
 
 Sound Card Configuration
@@ -26,13 +36,14 @@ Note: it is not necessary to install *PyAudio* on Linux.
 -----
 
 Before starting:
-- Need to edit the matplotlibrc file to force using wxPython backend:
+- [optional] You can edit the matplotlibrc file to force using wxPython backend as default:
 
 In Python shell, run:
-
+````python
     >>> import matplotlib
     >>> matplotlib.matplotlib_fname()
     '/usr/local/lib/python2.7/dist-packages/matplotlib/mpl-data/matplotlibrc'
+````
 
 As root, copy this file for backup then edit it:
 
@@ -43,9 +54,10 @@ change to
 
 
 This is the same as doing in the program:
-
+````python
     import matplotlib
     matplotlib.rcParams['backend']="WXAgg"
+````
     
 ------
 For reference only
@@ -60,9 +72,9 @@ If you want to give a try to *PyAudio*:
 Install PortAudio  ``# apt-get install libportaudio0``
 
 Or get its source from http://www.portaudio.com/download.html
- --> Download pa_stable_v19_20111121.tgz
+ --> Download pa_stable_v19_20111121.tgz (or latest)
 
-To do:
+Prerequisite:
 
 ``# apt-get install python-dev``
 
