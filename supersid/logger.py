@@ -56,10 +56,9 @@ class Logger():
     def log_sid_format(self, stations, date_begin_epoch, filename='', log_type='filtered', extended = False):
         """ One file per station. By default, buffered data is filtered."""
         filenames = []
-        self.config['utc_starttime'] = strftime("%Y-%m-%d %H:%M:%S", gmtime(date_begin_epoch))
+        #self.config['utc_starttime'] = strftime("%Y-%m-%d %H:%M:%S", gmtime(date_begin_epoch))
         for station in stations:       
-            my_filename = filename if filename != '' else self.config['site_name'] + "_" + station['call_sign'] + strftime("_%Y-%m-%d",gmtime(date_begin_epoch))
-            my_filename = self.config.data_path  + my_filename + ".csv"
+            my_filename = self.config.data_path + (filename or self.file.get_sid_filename(station['call_sign']))
             filenames.append(my_filename)
             self.file.write_data_sid(station, my_filename, log_type, extended=extended)  
         return filenames
@@ -67,13 +66,9 @@ class Logger():
     def log_supersid_format(self, stations, date_begin_epoch, filename='', log_type='filtered', extended = False):
         """Cascade all buffers in one file."""
         filenames = []
-        self.config['utc_starttime'] = strftime("%Y-%m-%d %H:%M:%S", gmtime(date_begin_epoch))
-        if filename == '':
-            filename = self.config['site_name'] + strftime("_%Y-%m-%d", gmtime(date_begin_epoch)) + ".csv"
-        filename = self.config.data_path + filename
-        filenames.append(filename)
-        self.file.write_data_supersid(filename, log_type, extended=extended)
+        #self.config['utc_starttime'] = strftime("%Y-%m-%d %H:%M:%S", gmtime(date_begin_epoch))
+        my_filename = self.config.data_path + (filename or self.file.get_supersid_filename())
+        filenames.append(my_filename)
+        self.file.write_data_supersid(my_filename, log_type, extended=extended)
         return filenames
-      
-      
-
+    

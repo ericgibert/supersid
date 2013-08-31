@@ -69,11 +69,11 @@ class SidFile():
 
     def clear_buffer(self, next_day=False):
         """creates zeroes numpy arrays to receive data and generates the timestamp vector"""
-        nb_data_per_day = int ( (24 * 3600) / self.LogInterval)
         if next_day:
             self.data.fill(0.0)
-            self.startTime += timedelta(days=1)
+            self.set_all_date_attributes()
         else:
+            nb_data_per_day = int ( (24 * 3600) / self.LogInterval)
             self.data = numpy.zeros((len(self.stations), nb_data_per_day))
         # create an array containing the timestamps for each data reading, default initialization     
         self.generate_timestamp()
@@ -94,12 +94,7 @@ class SidFile():
             exit(5)
 
         # get the datetime for UTC_StartTime
-        if not self.sid_params.has_key("utc_starttime"):
-            utcnow = datetime.utcnow()
-            self.sid_params["utc_starttime"] = "%d-%02d-%02d 00:00:00" % (utcnow.year, utcnow.month, utcnow.day)
-        self.UTC_StartTime = self.sid_params["utc_starttime"]
-        SidFile._timestamp_format = "%Y-%m-%d %H:%M:%S"
-        self.startTime = SidFile._StringToDatetime(self.sid_params["utc_starttime"])
+        self.set_all_date_attributes()
 
         # do we have a LogInterval ?
         if self.sid_params.has_key("log_interval"):
@@ -109,6 +104,14 @@ class SidFile():
         else:
             print ("Warning: Log_Interval is missing! Please check. I assume 5 sec...")
             self.LogInterval, self.sid_params["log_interval"] = 5, 5
+
+    def set_all_date_attributes(self):
+        utcnow = datetime.utcnow()
+        self.sid_params["utc_starttime"] = "%d-%02d-%02d 00:00:00" % (utcnow.year, utcnow.month, utcnow.day)
+        self.UTC_StartTime = self.sid_params["utc_starttime"]
+        SidFile._timestamp_format = "%Y-%m-%d %H:%M:%S"
+        self.startTime = SidFile._StringToDatetime(self.sid_params["utc_starttime"])
+
 
     def read_header(self):
         """Reads the first lines of a SID file to extract the 'sid_params'.
@@ -186,16 +189,6 @@ class SidFile():
             self.timestamp[i] =  currentTimestamp
             currentTimestamp += interval
 
-    def get_station_data(self, stationId):
-        """Return the numpy array of the given station's data"""
-        if stationId not in self.stations:
-            return []
-        elif self.isSuperSID:
-            idx = self.stations.index(stationId)
-            return self.data[:,idx]
-        else:
-            return self.data
-
     def create_header(self, isSuperSid, log_type):
         """ Create a string matching the SID/SuperSID file header.
         Ensure the same header on both formats.
@@ -222,6 +215,26 @@ class SidFile():
             hdr += "%s %s\n" % ("# StationID =", self.sid_params['stationid'])
             hdr += "%s %s\n" % ("# Frequency =", self.sid_params['frequency'])
         return hdr
+    
+    def get_sid_filename(self, station):
+        """Return a file name as <Site Name>_<Station>_<UTC Start Date>.csv like RASPI_NWC_2013-08-31.csv"""
+        site = self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site']
+        return "%s_%s_%s.csv" % (site, station, self.sid_params["utc_starttime"][:10])
+    
+    def get_supersid_filename(self):
+        """Return a file name as <Site Name>__<UTC Start Date>.csv like RASPI_2013-08-31.csv"""
+        site = self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site']
+        return "%s_%s.csv" % (site, self.sid_params["utc_starttime"][:10])
+        
+    def get_station_data(self, stationId):
+        """Return the numpy array of the given station's data"""
+        if stationId not in self.stations:
+            return []
+        elif self.isSuperSID:
+            idx = self.stations.index(stationId)
+            return self.data[:,idx]
+        else:
+            return self.data
 
     def get_station_index(self, station):
         """Returns the index of the station accordingly to the parameter station type"""
