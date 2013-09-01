@@ -133,6 +133,7 @@ class SuperSID():
         # do we need to save some files (hourly) or switch to a new day?
         need_to_clear_buffers = False
         if self.timer.utc_now.minute == 0 and self.timer.utc_now.second < self.config['log_interval']:
+            working_logger = self.logger
             if self.timer.utc_now.hour == 0:
                 # this is a bright new day! we need to save the buffers WITHOUT interrupting the monitoring
                 # On slow system, like the Raspberry Pi, saving the files takes more than 30 sec
@@ -152,8 +153,6 @@ class SuperSID():
                 finally:
                     # now we can save the DAILY buffers
                     self.save_current_buffers(logger = working_logger, log_type=self.config['log_type'], log_format='both')
-            else:
-                working_logger = self.logger
             # not a new day but still 'on the hour'
             if self.config['hourly_save'] == 'YES':
                 fileName = "hourly_current_buffers.raw.ext.%s.csv" % (working_logger.file.sid_params['utc_starttime'][:10])
