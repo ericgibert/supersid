@@ -129,71 +129,41 @@ class SuperSID():
         except IndexError as idxerr:
             print("Index Error:", idxerr)
             print("Data len:", len(data))
-
-        # do we need to save some files (hourly) or switch to a new day?
-        need_to_clear_buffers = False
-        if self.timer.utc_now.minute == 0 and self.timer.utc_now.second < self.config['log_interval']:
-            working_logger = self.logger
-            if self.timer.utc_now.hour == 0:
-                # this is a bright new day! we need to save the buffers WITHOUT interrupting the monitoring
-                # On slow system, like the Raspberry Pi, saving the files takes more than 30 sec
-                # which means that first readings of the day are lost
-                # --> to fix issue: make a deepcopy of the current SIDfile for future files writing
-                #     then reset (buffer.fill(0.0)) to the new day the "real" buffers for continuous reading
-                # multi-thread is ok: no need to lock the buffers since each thread is at a different time interval hence address a different index
-                try:
-                    working_logger = copy.deepcopy(self.logger)
-                    self.clear_all_data_buffers()
-                    self.timer.date_begin_epoch += 60*60*24 
-                except copy.error as why:
-                    print("Error on deepcopy:", why)
-                    print("I keep the original self.logger.file")
-                    working_logger = self.logger
-                    need_to_clear_buffers = True
-                finally:
-                    # now we can save the DAILY buffers
-                    self.save_current_buffers(logger = working_logger, log_type=self.config['log_type'], log_format='both')
-            # not a new day but still 'on the hour'
-            if self.config['hourly_save'] == 'YES':
-                fileName = "hourly_current_buffers.raw.ext.%s.csv" % (working_logger.file.sid_params['utc_starttime'][:10])
-                self.save_current_buffers(logger=working_logger, filename=fileName, log_type='raw', log_format='supersid_format', extended = True)  
-                    
-        # Save signal strengths into memory buffers ; prepare message for status bar
+            
         signal_strengths = []
         for binSample in self.sampler.monitored_bins:
             signal_strengths.append(Pxx[binSample])
-        message = self.timer.get_utc_now() + "  [%d]  " % self.current_index
-        for station, strength in zip(self.config.stations, signal_strengths):
-            station['raw_buffer'][self.current_index] = strength
-            message +=  station['call_sign'] + "=%f " % strength
-        self.logger.file.timestamp[self.current_index] = self.timer.utc_now
 
-#        # Auto-save every hour: raw buffers 'on the hour' in raw/superSID extended format
-#        if self.config['hourly_save'] == 'YES' and (self.current_index * self.config['log_interval']) % 3600 == 0:
-#            fileName = "hourly_current_buffers.raw.ext." + self.timer.get_utc_now()[:10]+".csv"
-#            self.save_current_buffers(fileName, 'raw', 'supersid_format', extended = True)  
-#        
-#        # When hitting the buffer limit, clear buffers, reset index, set to next date' epoch
-#        if self.current_index >= self.buffer_size - 1:
-#            self.save_current_buffers(log_type=self.config['log_type'], log_format='both')
-
-        # Restart a new day if the deepcopy did not work
-        if need_to_clear_buffers:
-            self.clear_all_data_buffers() 
-            self.timer.date_begin_epoch += 60*60*24    
+        # ensure that one thread at the time accesses the sidilfe buffers
+        with self.timer.lock:
+            # do we need to save some files (hourly) or switch to a new day?
+            if self.timer.utc_now.minute == 0 and self.timer.utc_now.second < self.config['log_interval']:
+                if self.config['hourly_save'] == 'YES':
+                    fileName = "hourly_current_buffers.raw.ext.%s.csv" % (self.logger.file.sid_params['utc_starttime'][:10])
+                    self.save_current_buffers(filename=fileName, log_type='raw', log_format='supersid_format', extended = True)  
+                # a new day!
+                if self.timer.utc_now.hour == 0:
+                    self.save_current_buffers(log_type=self.config['log_type'], log_format='both')
+                    self.clear_all_data_buffers()
+                    self.timer.date_begin_epoch += 60*60*24 
+            # Save signal strengths into memory buffers ; prepare message for status bar
+            message = self.timer.get_utc_now() + "  [%d]  " % self.current_index
+            for station, strength in zip(self.config.stations, signal_strengths):
+                station['raw_buffer'][self.current_index] = strength
+                message +=  station['call_sign'] + "=%f " % strength
+            self.logger.file.timestamp[self.current_index] = self.timer.utc_now
 
         # end of this thread/need to handle to View to display captured data & message
         self.viewer.status_display(message, level=2)
 
-    def save_current_buffers(self, logger = None, filename="current_buffers.csv", log_type='raw', log_format = 'both', extended = False):
+    def save_current_buffers(self, filename="current_buffers.csv", log_type='raw', log_format = 'both', extended = False):
         ''' Save raw data as supersid_format '''
         filenames = []
-        if logger is None: logger = self.logger
         if log_format in ('both', 'sid_format'):
-            fnames = logger.log_sid_format(self.config.stations, self.timer.date_begin_epoch, '', log_type=log_type, extended=extended) # filename is '' to ensure one file per station
+            fnames = self.logger.log_sid_format(self.config.stations, self.timer.date_begin_epoch, '', log_type=log_type, extended=extended) # filename is '' to ensure one file per station
             filenames += fnames
         if log_format in ('both', 'supersid_format'):
-            fnames = logger.log_supersid_format(self.config.stations, self.timer.date_begin_epoch, filename, log_type=log_type, extended=extended)
+            fnames = self.logger.log_supersid_format(self.config.stations, self.timer.date_begin_epoch, filename, log_type=log_type, extended=extended)
             filenames += fnames
         return filenames
         
