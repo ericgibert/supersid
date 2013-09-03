@@ -114,13 +114,14 @@ class SuperSID():
         self.logger.file.clear_buffer(next_day = True)
 
     def on_timer(self):
-        # self.current_index is the position in the buffer calculated from current UTC time
-        self.current_index = self.timer.data_index
+        # current_index is the position in the buffer calculated from current UTC time
+        current_index = self.timer.data_index
+        utc_now = self.timer.utc_now
         # clear the View to prepare for new data display
         self.viewer.clear()
 
         # Get new data and pass them to the View
-        message = "%s  [%d]  Capturing data..." % (self.timer.get_utc_now(), self.current_index)
+        message = "%s  [%d]  Capturing data..." % (self.timer.get_utc_now(), current_index)
         self.viewer.status_display(message, level=1)
             
         try:
@@ -147,11 +148,11 @@ class SuperSID():
                     self.clear_all_data_buffers()
                     self.timer.date_begin_epoch += 60*60*24 
             # Save signal strengths into memory buffers ; prepare message for status bar
-            message = self.timer.get_utc_now() + "  [%d]  " % self.current_index
+            message = self.timer.get_utc_now() + "  [%d]  " % current_index
             for station, strength in zip(self.config.stations, signal_strengths):
-                station['raw_buffer'][self.current_index] = strength
+                station['raw_buffer'][current_index] = strength
                 message +=  station['call_sign'] + "=%f " % strength
-            self.logger.file.timestamp[self.current_index] = self.timer.utc_now
+            self.logger.file.timestamp[current_index] = utc_now
 
         # end of this thread/need to handle to View to display captured data & message
         self.viewer.status_display(message, level=2)
