@@ -7,8 +7,12 @@ Parameter access: all keys are forced to lowercase
 
 Note: len(config.stations) == config['number_of_stations'] - sanity check -
 """
+from __future__ import print_function   # use the new Python 3 'print' function
 import os.path
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
 
 class Config(dict):
 
@@ -80,7 +84,7 @@ class Config(dict):
                     }
 
         self.sectionfound = set()
-        for section, fields in sections.iteritems():
+        for (section, fields) in sections.items():
             # go thru all the current section's fields
             for pkey, pcast, pdefault in fields:
                 try:
@@ -103,7 +107,7 @@ class Config(dict):
                     self.sectionfound.add(section)
 
         if "Linux" in self.sectionfound:
-            print "\n*** WARNING***\nSection [Linux] is obsolete. Please replace it by [Capture] in your .cfg files.\n"
+            print ("\n*** WARNING***\nSection [Linux] is obsolete. Please replace it by [Capture] in your .cfg files.\n")
 
         # Getting the stations parameters 
         self.stations = []  # now defined as a list of dictionaries
@@ -192,9 +196,9 @@ if __name__ == '__main__':
     cfg = Config(sys.argv[1])
     cfg.supersid_check()
     if cfg.config_ok:
-        print cfg.filenames, "read successfully:"
+        print (cfg.filenames, "read successfully:")
     else:
-        print "Error:", cfg.config_err
-    print cfg
-    print cfg.stations
-    print cfg.sectionfound
+        print ("Error:", cfg.config_err)
+    print (cfg)
+    print (cfg.stations)
+    print (cfg.sectionfound)

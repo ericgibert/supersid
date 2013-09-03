@@ -97,9 +97,9 @@ class SidFile():
         self.set_all_date_attributes()
 
         # do we have a LogInterval ?
-        if self.sid_params.has_key("log_interval"):
+        if "log_interval" in self.sid_params:
             self.LogInterval = int(self.sid_params["log_interval"])
-        elif self.sid_params.has_key("loginterval"):
+        elif "loginterval" in self.sid_params:
             self.LogInterval = int(self.sid_params["loginterval"])
         else:
             print ("Warning: Log_Interval is missing! Please check. I assume 5 sec...")

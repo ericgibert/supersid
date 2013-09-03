@@ -1,4 +1,5 @@
 ## {{{ http://code.activestate.com/recipes/134892/ (r2)
+import sys
 class _Getch:
     """Gets a single character from standard input.  Does not echo to the screen."""
     def __init__(self):
@@ -12,10 +13,10 @@ class _Getch:
 
 class _GetchUnix:
     def __init__(self):
-        import tty, sys
+        import tty, termios
 
     def __call__(self):
-        import sys, tty, termios
+        import tty, termios
         fd = sys.stdin.fileno()
         old_settings = termios.tcgetattr(fd)
         try:
@@ -32,5 +33,7 @@ class _GetchWindows:
 
     def __call__(self):
         import msvcrt
-        return msvcrt.getch()
-
+        if sys.version[0]<'3':
+            return msvcrt.getch()
+        else:
+            return msvcrt.getch().decode()

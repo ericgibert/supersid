@@ -17,6 +17,7 @@
      - capture_1sec: obtain one second of sound and return as an array of 'audio_sampling_rate' integers
      - close: close the 'device'
 """
+from __future__ import print_function   # use the new Python 3 'print' function
 from struct import unpack as st_unpack
 from numpy import array
 
@@ -107,14 +108,14 @@ class Sampler():
         except:
             self.sampler_ok = False
             self.display_error_message("Could not open capture device. Please check your .cfg file or hardware.")
-            print controller.config['Audio']
+            print (controller.config['Audio'])
 
     def set_monitored_frequencies(self, stations):
         self.monitored_bins = []
         for station in stations:
             binSample = int(((int(station['frequency']) * self.NFFT) / self.audio_sampling_rate))
             self.monitored_bins.append(binSample)
-            #print "monitored freq =", station[Config.FREQUENCY], " => bin = ", binSample
+            #print ("monitored freq =", station[Config.FREQUENCY], " => bin = ", binSample)
 
     def capture_1sec(self):
         """Capture 1 second of data, returned data as an array
@@ -123,7 +124,7 @@ class Sampler():
             self.data = self.capture_device.capture_1sec()
         except:
             self.sampler_ok = False
-            print "Fail to read data from audio using " + self.capture_device.name
+            print ("Fail to read data from audio using " + self.capture_device.name)
             self.data = []
         else:
             #scale A/D raw_data to voltage here (we might substract 5v to make the data look more like SID)

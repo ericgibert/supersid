@@ -5,6 +5,7 @@
     The auto-correction compensates for the micro-seconds lost from one tick to the next.
     Implemenation examples are provided at the source's end, which can be used to test the module/class.
 """
+from __future__ import print_function   # use the new Python 3 'print' function
 import time
 from datetime import datetime 
 import calendar
@@ -59,9 +60,9 @@ if __name__ == '__main__':
     class test_SidTimer_superclass(SidTimer):
         """Example of SidTimer implementation by extending SidTimer class and inheriting its properties"""
         def __init__(self, interval):
-            print "Waiting for synchro...",
+            print ("Waiting for synchro...", end='')
             SidTimer.__init__(self, interval, self.onTimerEvent)
-            print "done."
+            print ("done.")
             self.max_plus_error, self.max_minus_error = 0, 0
 
 
@@ -75,8 +76,8 @@ if __name__ == '__main__':
             elif time_error < 0 and time_error < self.max_minus_error:
                 self.max_minus_error = time_error
             
-            print "Idx", self.data_index, "now:", self.time_now, "expec_time:", self.expected_time - self.interval,
-            print " err:", time_error, "interv: %f" % (self.expected_time - self.time_now)
+            print ("Idx", self.data_index, "now:", self.time_now, "expec_time:", self.expected_time - self.interval)
+            print (" err:", time_error, "interv: %f" % (self.expected_time - self.time_now))
 
         def cancel_timer(self):
             self.stop()
@@ -84,9 +85,9 @@ if __name__ == '__main__':
     class test_SidTimer_simple():
         """Example of SidTimer implementation using a local variable 'sidtimer' to handle the new SidTimer instance"""
         def __init__(self, interval):
-            print "Waiting for synchro...",
+            print ("Waiting for synchro...",end='')
             self.sidtimer = SidTimer(interval, self.onTimerEvent)
-            print "done."
+            print ("done.")
             self.max_plus_error, self.max_minus_error = 0, 0
 
         def onTimerEvent(self):
@@ -99,8 +100,8 @@ if __name__ == '__main__':
             elif time_error < 0 and time_error < self.max_minus_error:
                 self.max_minus_error = time_error
 
-            print "Idx", self.sidtimer.data_index, "now:", self.sidtimer.time_now, "expec_time:", self.sidtimer.expected_time - self.sidtimer.interval,
-            print " err:", time_error, "interv: %f" % (self.sidtimer.expected_time - self.sidtimer.time_now)
+            print ("Idx", self.sidtimer.data_index, "now:", self.sidtimer.time_now, "expec_time:", self.sidtimer.expected_time - self.sidtimer.interval)
+            print (" err:", time_error, "interv: %f" % (self.sidtimer.expected_time - self.sidtimer.time_now))
 
         def cancel_timer(self):
             self.sidtimer.stop()
@@ -114,5 +115,5 @@ if __name__ == '__main__':
 
     # let's cleanup and show max errors
     tst.cancel_timer()
-    print "max positive error: ", tst.max_plus_error
-    print "max negative error: ", tst.max_minus_error
+    print ("max positive error: ", tst.max_plus_error)
+    print ("max negative error: ", tst.max_minus_error)
