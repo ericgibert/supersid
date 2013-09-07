@@ -31,6 +31,8 @@ class SidFile():
     """Class to read SID or SuperSID files. 
     Provides header information and data content access.
     """
+    _TIMESTAMP_STANDARD = "%Y-%m-%d %H:%M:%S"
+    _TIMESTAMP_EXTENDED = "%Y-%m-%d %H:%M:%S.%f"
     _timestamp_format = "%Y-%m-%d %H:%M:%S"
     def __init__(self, filename = "", sid_params = {}, force_read_timestamp = False):
         """Two ways to create a SIDfile:
@@ -47,11 +49,12 @@ class SidFile():
         self.filename = filename
         self.sid_params = sid_params    # dictionary of all header pairs
         self.is_extended = False
+        self.timestamp_format = SidFile._TIMESTAMP_STANDARD
 
         if filename:
             # Read all lines in a buffer used by 'read_data' and 'read_header'
             try:
-                with open(self.filename,"rt") as fin:
+                with open(self.filename, "rt") as fin:
                     self.lines = fin.readlines()
             except IOError as why:
                 print ("Error reading", filename)
@@ -109,7 +112,6 @@ class SidFile():
         utcnow = datetime.utcnow()
         self.sid_params["utc_starttime"] = "%d-%02d-%02d 00:00:00" % (utcnow.year, utcnow.month, utcnow.day)
         self.UTC_StartTime = self.sid_params["utc_starttime"]
-        SidFile._timestamp_format = "%Y-%m-%d %H:%M:%S"
         self.startTime = SidFile._StringToDatetime(self.sid_params["utc_starttime"])
 
 
@@ -138,13 +140,19 @@ class SidFile():
         first_data_line = self.lines[self.headerNbLines].split(",")
         if '-' in first_data_line[0]: # yes, a time stamp is found in the first data column
             try:
-                datetime.strptime(first_data_line[0], "%Y-%m-%d %H:%M:%S.%f")
+                datetime.strptime(first_data_line[0], SidFile._TIMESTAMP_EXTENDED)
                 self.is_extended = True
-                SidFile._timestamp_format = "%Y-%m-%d %H:%M:%S.%f"
+                SidFile._timestamp_format = SidFile._TIMESTAMP_EXTENDED
+                self.timestamp_format = SidFile._TIMESTAMP_EXTENDED
             except ValueError:
-                datetime.strptime(first_data_line[0], "%Y-%m-%d %H:%M:%S")
+                datetime.strptime(first_data_line[0], SidFile._TIMESTAMP_STANDARD)
                 self.is_extended = False
-                SidFile._timestamp_format = "%Y-%m-%d %H:%M:%S"
+                SidFile._timestamp_format = SidFile._TIMESTAMP_STANDARD
+                self.timestamp_format = SidFile._TIMESTAMP_STANDARD
+        # necessary to convert timestamp string (extended or not) to datetime AND decode byte array to string to float for python 3
+        converters_dict = {0: SidFile._StringToDatetime }
+        for i in range(len(self.stations)):
+            converters_dict[i+1] = SidFile._StringToFloat
             
         if self.isSuperSID and not self.is_extended:
             # classic SuperSID file format: one data column per station, no time stamp (has to be generated)
@@ -154,7 +162,7 @@ class SidFile():
         elif self.isSuperSID and self.is_extended:
             # extended SuperSID file format: one extended time stamp then one data column per station
             print ("Warning: read SuperSid extended file, time stamps are read & converted from file.")
-            inData = numpy.loadtxt(self.lines, dtype=datetime, comments='#', delimiter=",", converters={0: SidFile._StringToDatetime})
+            inData = numpy.loadtxt(self.lines, dtype=datetime, comments='#', delimiter=",", converters=converters_dict)
             self.timestamp = inData[:,0] # column 0
             self.data = numpy.array(inData[:,1:], dtype=float).transpose() 
         else:
@@ -164,7 +172,7 @@ class SidFile():
             if len(self.lines) - self.headerNbLines != (60 * 60 * 24) / self.LogInterval  \
             or force_read_timestamp or self.is_extended:
                 print ("Warning: read SID file, timestamps are read & converted from file.")
-                inData = numpy.loadtxt(self.lines, dtype=datetime, comments='#', delimiter=",", converters={0: SidFile._StringToDatetime})
+                inData = numpy.loadtxt(self.lines, dtype=datetime, comments='#', delimiter=",", converters=converters_dict)
                 self.timestamp = inData[:,0] # column 0
                 self.data = numpy.array(inData[:,1], dtype=float, ndmin=2) # column 1
             else:
@@ -176,8 +184,15 @@ class SidFile():
 
     @classmethod
     def _StringToDatetime(cls, strTimestamp):
+        if type(strTimestamp) is not str: # i.e. byte array in Python 3
+            strTimestamp = strTimestamp.decode('utf-8')
         return datetime.strptime(strTimestamp, SidFile._timestamp_format)
-
+    
+    @classmethod
+    def _StringToFloat(cls, strNumber):
+        if type(strNumber) is not str: # i.e. byte array in Python 3
+            strNumber = strNumber.decode('utf-8')
+        return float(strNumber)    
 
     def generate_timestamp(self):
         """Create the timestamp vector by adding LogInterval seconds to UTC_StartTime"""
@@ -195,25 +210,25 @@ class SidFile():
         - isSuperSid: request a SuperSid header if True else a SID header
         - log_type: must be 'raw' or 'filtered'
         """
-        hdr = "%s %s\n" % ("# Site =", self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site'])
+        hdr = "# Site = %s\n" % (self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site'])
         if 'contact' in self.sid_params:
-            hdr += "%s %s\n" % ("# Contact =", self.sid_params['contact'])
-        hdr += "%s %s\n" % ("# Longitude =", self.sid_params['longitude'])
-        hdr += "%s %s\n" % ("# Latitude =", self.sid_params['latitude'])
+            hdr += "# Contact = %s\n" % self.sid_params['contact']
+        hdr += "# Longitude = %s\n" % self.sid_params['longitude']
+        hdr += "# Latitude = %s\n" % self.sid_params['latitude']
         hdr += "#\n"
-        hdr += "%s %s\n" % ("# UTC_Offset =", self.sid_params['utc_offset'])
-        hdr += "%s %s\n" % ("# TimeZone =", self.sid_params['time_zone'] if 'time_zone' in self.sid_params else self.sid_params['timezone'])
+        hdr += "# UTC_Offset = %s\n" % self.sid_params['utc_offset']
+        hdr += "# TimeZone = %s\n" % (self.sid_params['time_zone'] if 'time_zone' in self.sid_params else self.sid_params['timezone'])
         hdr += "#\n"
-        hdr += "%s %s\n" % ("# UTC_StartTime =", self.sid_params['utc_starttime'])
-        hdr += "%s %s\n" % ("# LogInterval =", self.sid_params['log_interval'] if 'log_interval' in self.sid_params else self.sid_params['loginterval'])
-        hdr += "%s %s\n" % ("# LogType =", log_type)
-        hdr += "%s %s\n" % ("# MonitorID =", self.sid_params['monitor_id'] if 'monitor_id' in self.sid_params else self.sid_params['monitorid'])
+        hdr += "# UTC_StartTime = %s\n" % self.sid_params['utc_starttime']
+        hdr += "# LogInterval = %s\n" % (self.sid_params['log_interval'] if 'log_interval' in self.sid_params else self.sid_params['loginterval'])
+        hdr += "# LogType = %s\n" % log_type
+        hdr += "# MonitorID = %s\n" % (self.sid_params['monitor_id'] if 'monitor_id' in self.sid_params else self.sid_params['monitorid'])
         if isSuperSid:
-            hdr += "%s %s\n" % ("# Stations =", self.sid_params['stations'])
-            hdr += "%s %s\n" % ("# Frequencies =", self.sid_params['frequencies'])
+            hdr += "# Stations = %s\n" % self.sid_params['stations']
+            hdr += "# Frequencies = %s\n" % self.sid_params['frequencies']
         else:
-            hdr += "%s %s\n" % ("# StationID =", self.sid_params['stationid'])
-            hdr += "%s %s\n" % ("# Frequency =", self.sid_params['frequency'])
+            hdr += "# StationID = %s\n" % self.sid_params['stationid']
+            hdr += "# Frequency = %s\n" % self.sid_params['frequency']
         return hdr
     
     def get_sid_filename(self, station):
@@ -270,7 +285,7 @@ class SidFile():
             hdr = self.create_header(isSuperSid = False, log_type = log_type)
             print(hdr, file=fout, end="")
             # generate the "timestamp, data" serie i.e. data lines
-            timestamp_format = "%Y-%m-%d %H:%M:%S.%f" if extended else "%Y-%m-%d %H:%M:%S"
+            timestamp_format = SidFile._TIMESTAMP_EXTENDED if extended else SidFile._TIMESTAMP_STANDARD ###"%Y-%m-%d %H:%M:%S.%f" if extended else "%Y-%m-%d %H:%M:%S"
             for t_stamp, x in zip(self.timestamp, tmp_data):
                 print("%s, %.15f" % (t_stamp.strftime(timestamp_format), x), file=fout)
 
@@ -293,7 +308,7 @@ class SidFile():
             if extended:
                 for t_stamp, row in zip(self.timestamp, numpy.transpose(tmp_data)):
                     floats_as_strings = ["%.15f" % x for x in row]             
-                    print( t_stamp.strftime("%Y-%m-%d %H:%M:%S.%f,"), ", ".join(floats_as_strings), file=fout)                
+                    print( t_stamp.strftime(SidFile._TIMESTAMP_EXTENDED+","), ", ".join(floats_as_strings), file=fout)                
             else:
                 for row in numpy.transpose(tmp_data):
                     floats_as_strings = ["%.15f" % x for x in row]
@@ -362,19 +377,25 @@ if __name__ == '__main__':
     args, unk = parser.parse_known_args() 
     if args.filename_info:
         sid = SidFile(args.filename_info, force_read_timestamp = True)
+        print("-" * 5, "Header information", "-" * 5)
         if sid.is_extended:
             print("Time stamps are extended.")
         if sid.isSuperSID:
-            print("SuperSID file format: -- Header information --")
+            print("SuperSID file format")
             print("Monitored Stations List:", sid.stations)
         else:
-            print("SID File Format: -- Header information --")
+            print("SID File Format")
             print("Station:", sid.stations)
-            print("Start Time:", sid.startTime)
+        print("Start Time:", sid.startTime)
         print("Number of TimeStamps:", len(sid.timestamp))
         print("Dataset shape:", sid.data.shape)
-        print(sid.data[0][5881:5891])
-        print(sid.timestamp[5881:5891])
+        for i in range(len(sid.timestamp)):
+            if sid.data[0][i] != 0.0: break
+        if i == len(sid.timestamp): i = 0
+        for t_stamp, row in zip(sid.timestamp[i:i+5], numpy.transpose(sid.data)[i:i+5]):
+            floats_as_strings = ["%.15f" % x for x in row]             
+            print( t_stamp.strftime(sid.timestamp_format+","), ", ".join(floats_as_strings))
+        print("-" * 5, "sid_params", "-" * 5)
         for key, value in sid.sid_params.items():
             print(" " * 5, key, "=", value)
         
@@ -420,6 +441,6 @@ if __name__ == '__main__':
             sid1.write_data_sid(sid1.stations[0], fmerge(sid1.filename), sid1.sid_params['logtype'], apply_bema = False)
             print(fmerge(sid1.filename), "created.")                
     else:
-        parser.print_usage()
+        parser.print_help()
             
 

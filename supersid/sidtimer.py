@@ -21,6 +21,7 @@ class SidTimer():
         self.version = "1.3.1 20130907"
         self.callback = callback
         self.interval = interval
+        self.lock = threading.Lock()
         # wait for synchro on the next 'interval' sec
         now = time.gmtime() 
         while now.tm_sec % self.interval != 0:
@@ -29,7 +30,6 @@ class SidTimer():
         # request a Timer     
         self.start_time = int(time.time() / self.interval) * self.interval
         self.expected_time = self.start_time + self.interval
-        self.lock = threading.Lock()
         self._timer = threading.Timer(self.expected_time - time.time(), self._ontimer)
         self._timer.start()
 

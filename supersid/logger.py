@@ -7,7 +7,6 @@ from time import gmtime, strftime
 from sidfile import SidFile
 
 class Logger():
-
     def __init__(self, controller, read_file):
         self.version = "1.3.1 20130907"
         self.controller = controller
