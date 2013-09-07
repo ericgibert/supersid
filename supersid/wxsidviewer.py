@@ -166,7 +166,7 @@ which are caused by a blast of intense X-ray radiation when there is a Solar Fla
                         "Timer:" + self.controller.timer.version  + "\n"  \
                         "Config:" + self.controller.config.version  + "\n"  \
                         "Logger:" + self.controller.logger.version  + "\n"  \
-                        "Sidfile:" + self.controller.logger.file.version  + "\n"  \
+                        "Sidfile:" + self.controller.logger.sid_file.version  + "\n"  \
                         "wx viewer:" + self.version  + "\n"
 
 

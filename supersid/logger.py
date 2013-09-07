@@ -9,26 +9,26 @@ from sidfile import SidFile
 class Logger():
 
     def __init__(self, controller, read_file):
-        self.version = "1.3.1 20130819"
+        self.version = "1.3.1 20130907"
         self.controller = controller
         self.config = controller.config
-        # Do we have a 'Continue' entry in the config file?
+        # Do we have a file to read?
         if read_file:
-            self.file = SidFile(filename = read_file)
-            if self.file.sid_params['logtype'] != 'raw':
-                print("The file type is not raw but", self.file.sid_params['logtype'])
+            self.sid_file = SidFile(filename = read_file)
+            if self.sid_file.sid_params['logtype'] != 'raw':
+                print("The file type is not raw but", self.sid_file.sid_params['logtype'])
                 answer = raw_input("Do you still want to keep its content and continue recording? [y/N]")
                 if answer.lower()!='y':
                     print("Abort.")
                     exit(-10)
-            elif self.file.sid_params['utc_starttime'] != strftime("%Y-%m-%d 00:00:00", gmtime()):
-                print("Not today's file. The file UTC_StartTime =", self.file.sid_params['utc_starttime'])
+            elif self.sid_file.sid_params['utc_starttime'] != strftime("%Y-%m-%d 00:00:00", gmtime()):
+                print("Not today's file. The file UTC_StartTime =", self.sid_file.sid_params['utc_starttime'])
                 answer = raw_input("Do you still want to keep its content and continue recording? [y/N]")
                 if answer.lower()!='y':
                     print("Abort.")
                     exit(-11)
-            elif sorted(self.file.stations) != sorted([s['call_sign'] for s in self.config.stations]):
-                print("Station Lists are different:", self.file.stations, "!=", [s['call_sign'] for s in self.config.stations])
+            elif sorted(self.sid_file.stations) != sorted([s['call_sign'] for s in self.config.stations]):
+                print("Station Lists are different:", self.sid_file.stations, "!=", [s['call_sign'] for s in self.config.stations])
                 answer = raw_input("Do you still want to keep its content and continue recording? [y/N]")
                 if answer.lower()!='y':
                     print("Abort.")
@@ -51,24 +51,22 @@ class Logger():
             else:
                 print("Error: no station to log???")
                 exit(5)
-            self.file = SidFile(sid_params = self.config)
+            self.sid_file = SidFile(sid_params = self.config)
     
-    def log_sid_format(self, stations, date_begin_epoch, filename='', log_type='filtered', extended = False):
+    def log_sid_format(self, stations,  filename='', log_type='filtered', extended = False):
         """ One file per station. By default, buffered data is filtered."""
         filenames = []
-        #self.config['utc_starttime'] = strftime("%Y-%m-%d %H:%M:%S", gmtime(date_begin_epoch))
         for station in stations:       
-            my_filename = self.config.data_path + (filename or self.file.get_sid_filename(station['call_sign']))
+            my_filename = self.config.data_path + (filename or self.sid_file.get_sid_filename(station['call_sign']))
             filenames.append(my_filename)
-            self.file.write_data_sid(station, my_filename, log_type, extended=extended)  
+            self.sid_file.write_data_sid(station, my_filename, log_type, extended=extended)  
         return filenames
     
-    def log_supersid_format(self, stations, date_begin_epoch, filename='', log_type='filtered', extended = False):
+    def log_supersid_format(self, stations, filename='', log_type='filtered', extended = False):
         """Cascade all buffers in one file."""
         filenames = []
-        #self.config['utc_starttime'] = strftime("%Y-%m-%d %H:%M:%S", gmtime(date_begin_epoch))
-        my_filename = self.config.data_path + (filename or self.file.get_supersid_filename())
+        my_filename = self.config.data_path + (filename or self.sid_file.get_supersid_filename())
         filenames.append(my_filename)
-        self.file.write_data_supersid(my_filename, log_type, extended=extended)
+        self.sid_file.write_data_supersid(my_filename, log_type, extended=extended)
         return filenames
     

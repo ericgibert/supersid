@@ -8,7 +8,6 @@
 from __future__ import print_function   # use the new Python 3 'print' function
 import time
 from datetime import datetime 
-import calendar
 import threading
 
 class SidTimer():
@@ -19,7 +18,7 @@ class SidTimer():
             - expected_time: theoritical time the trigger should happen as 'start_time + X * interval'
             - time_now: real time.time() when the trigger happened
         """
-        self.version = "1.3.1 20130721"
+        self.version = "1.3.1 20130907"
         self.callback = callback
         self.interval = interval
         # wait for synchro on the next 'interval' sec
@@ -27,7 +26,6 @@ class SidTimer():
         while now.tm_sec % self.interval != 0:
             time.sleep(0.05)
             now = time.gmtime()
-        self.date_begin_epoch = calendar.timegm((now[0], now[1], now[2], 0, 0, 0, now[6], now[7], now[8]))
         # request a Timer     
         self.start_time = int(time.time() / self.interval) * self.interval
         self.expected_time = self.start_time + self.interval

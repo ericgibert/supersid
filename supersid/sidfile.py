@@ -43,7 +43,7 @@ class SidFile():
         Note: only one or the other parameter should be given. If both are given
         then 'filename' is taken and 'sid_params' is ignored.
         """
-        self.version = "1.3.1 20130817"
+        self.version = "1.3.1 20130907"
         self.filename = filename
         self.sid_params = sid_params    # dictionary of all header pairs
         self.is_extended = False
@@ -204,7 +204,7 @@ class SidFile():
         hdr += "%s %s\n" % ("# UTC_Offset =", self.sid_params['utc_offset'])
         hdr += "%s %s\n" % ("# TimeZone =", self.sid_params['time_zone'] if 'time_zone' in self.sid_params else self.sid_params['timezone'])
         hdr += "#\n"
-        hdr += "%s %s\n" % ("# UTC_StartTime =", self.sid_params['utc_starttime']) #  + strftime("%Y-%m-%d %H:%M:%S", gmtime(date_begin_epoch)
+        hdr += "%s %s\n" % ("# UTC_StartTime =", self.sid_params['utc_starttime'])
         hdr += "%s %s\n" % ("# LogInterval =", self.sid_params['log_interval'] if 'log_interval' in self.sid_params else self.sid_params['loginterval'])
         hdr += "%s %s\n" % ("# LogType =", log_type)
         hdr += "%s %s\n" % ("# MonitorID =", self.sid_params['monitor_id'] if 'monitor_id' in self.sid_params else self.sid_params['monitorid'])
@@ -337,56 +337,69 @@ class SidFile():
                 doffset = numpy.hstack((daverage[gmt_mark:length],daverage[0:gmt_mark]))
                 return doffset
 
+#-------------------------------------------------------------------------------
 if __name__ == '__main__':
-    import sys
     from os import path
-    fname = lambda x: "%s.merge%s" % path.splitext(x)  # /original/path/name.merge.ext
+    import argparse
+    
+    def exist_file(x):
+        """
+        'Type' for argparse - checks that file exists but does not open.
+        """
+        if not path.isfile(x):
+            raise argparse.ArgumentError("{0} does not exist".format(x))
+        return x    
+    
+    fmerge = lambda x: "%s.merge%s" % path.splitext(x)  # /original/path/name.merge.ext
     # check that one or two arguments are given
-    if not(2 <= len(sys.argv) <= 3):
-        print (USAGE)
-        exit()
-    # one argument only
-    elif len(sys.argv) == 2: 
-        sid = SidFile(sys.argv[1], force_read_timestamp = True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--split", dest="filename_split", required=False, type=exist_file,
+                            help="Split 1 supersid_format in N sid_format / 1 supersid_extended in N sid_extended i.e. one per station")
+    parser.add_argument("-m", "--merge", dest="filename_merge", required=False, type=exist_file, nargs="*",
+                            help="Merge 2 sid_format in one supersid_format / 2 supersid_extended in one supersid_extended")
+    parser.add_argument("-i", "--info", dest="filename_info", required=False, type=exist_file, 
+                            help="Display information about one file")
+    args, unk = parser.parse_known_args() 
+    if args.filename_info:
+        sid = SidFile(args.filename_info, force_read_timestamp = True)
         if sid.is_extended:
             print("Time stamps are extended.")
         if sid.isSuperSID:
             print("SuperSID file format: -- Header information --")
-            for key, value in sid.sid_params.iteritems():
-                print(" " * 5, key, "=", value)
             print("Monitored Stations List:", sid.stations)
-            print("Dataset shape:", sid.data.shape)
-            # explode this SuperSID file in one file per station in SID format
-            answer = raw_input("Proceed to split this SuperSID file in %d SID files? [y/N]" % sid.data.shape[0])
-            if answer == 'y':
-                for station in sid.stations:
-                    fname = "%s/%s_%s_%s.split.csv" % (path.dirname(sid.filename),
-                                                 sid.sid_params['site'], 
-                                                 station, 
-                                                 sid.sid_params['utc_starttime'][:10])
-                    print(fname, "created.")
-                    sid.write_data_sid(station, fname, sid.sid_params['logtype'], apply_bema = False)   
         else:
             print("SID File Format: -- Header information --")
-            for key, value in sid.sid_params.iteritems():
-                print(" " * 5, key, "=", value)
-            print("Stations:", sid.stations)
+            print("Station:", sid.stations)
             print("Start Time:", sid.startTime)
-            print("Number of TimeStamps:", len(sid.timestamp))
-            print("Dataset shape:", sid.data.shape)
-            print(sid.data[0][5881:5891])
-            print(sid.timestamp[5881:5891])
-    # two files given as arguments    
-    else:  
-        sid1, sid2 = SidFile(sys.argv[1]), SidFile(sys.argv[2])
+        print("Number of TimeStamps:", len(sid.timestamp))
+        print("Dataset shape:", sid.data.shape)
+        print(sid.data[0][5881:5891])
+        print(sid.timestamp[5881:5891])
+        for key, value in sid.sid_params.items():
+            print(" " * 5, key, "=", value)
+        
+    elif args.filename_split:
+        sid = SidFile(args.filename_split, force_read_timestamp = True)
+        # explode this SuperSID file in one file per station in SID format
+        print("Proceed to split this SuperSID file in %d SID files? [y/N]" % sid.data.shape[0])
+        for station in sid.stations:
+            fname = "%s/%s_%s_%s.split.csv" % (path.dirname(sid.filename),
+                                         sid.sid_params['site'], 
+                                         station, 
+                                         sid.sid_params['utc_starttime'][:10])
+            print(fname, "created.")
+            sid.write_data_sid(station, fname, sid.sid_params['logtype'], apply_bema = False)
+
+    elif args.filename_merge:  
+        sid1, sid2 = SidFile(args.filename_merge[0]), SidFile(args.filename_merge[1])
         # two SuperSID files to merge station by station
         if sid1.isSuperSID and sid2.isSuperSID:
             for istation in range(len(sid1.stations)):
                 sid1.data[:, istation] += sid2.get_station_data(sid1.stations[istation])
-            sid1.write_data_supersid(fname(sid1.filename))
-            print(fname(sid1.filename), "created.")
+            sid1.write_data_supersid(fmerge(sid1.filename), apply_bema = False)
+            print(fmerge(sid1.filename), "created.")
             
-        # one SID file and one SuperSID file: merge the SuperSID's matching station to SDI file       
+        # one SID file and one SuperSID file: merge the SuperSID's matching station to SID file       
         elif sid1.isSuperSID != sid2.isSuperSID:
             if sid1.isSuperSID:
                 supersid = sid1
@@ -399,13 +412,14 @@ if __name__ == '__main__':
                 print("Error: station %s in not found in the superSId file. Cannot merge." % station)
             else:
                 sid.data += supersid.get_station_data(station)
-                sid.write_data_sid(station, fname(sid.filename))
-                print(fname(sid.filename), "created.")
+                sid.write_data_sid(station, fmerge(sid.filename), sid.sid_params['logtype'], apply_bema = False)
+                print(fmerge(sid.filename), "created.")
         # two SID files to merge in one SID file - sid1's header is kept
         else:
             sid1.data += sid2.data
-            sid1.write_data_sid(sid1.stations[0], fname(sid1.filename), sid1.sid_params['logtype'], apply_bema = False)
-            print(fname(sid1.filename), "created.")                
-             
+            sid1.write_data_sid(sid1.stations[0], fmerge(sid1.filename), sid1.sid_params['logtype'], apply_bema = False)
+            print(fmerge(sid1.filename), "created.")                
+    else:
+        parser.print_usage()
             
 

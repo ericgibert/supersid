@@ -22,7 +22,6 @@ import os.path
 from matplotlib.mlab import psd as mlab_psd
 from time import sleep
 import argparse
-import copy
 
 # SuperSID Package classes
 from sidtimer import SidTimer
@@ -49,7 +48,7 @@ class SuperSID():
     running = False  # class attribute to indicate if the SID application is running
     
     def __init__(self, config_file='', read_file=''):
-        self.version = "1.3.1 20130817"
+        self.version = "1.3.1 20130907"
         self.timer = None
         self.sampler = None
         self.viewer = None
@@ -70,7 +69,7 @@ class SuperSID():
         # Create Logger - NEW: Logger will read an existing file if specified as -R script argument
         self.logger = Logger(self, read_file)
         if 'utc_starttime' not in self.config:
-            self.config['utc_starttime'] = self.logger.file.sid_params["utc_starttime"]
+            self.config['utc_starttime'] = self.logger.sid_file.sid_params["utc_starttime"]
                    
         # Create the viewer based on the .cfg specification (or set default):
         # Note: the list of Viewers can be extended provided they implement the same interface
@@ -101,9 +100,9 @@ class SuperSID():
         else:
             self.sampler.set_monitored_frequencies(self.config.stations);
         
-        # Link the logger.file.data buffers to the config.stations
+        # Link the logger.sid_file.data buffers to the config.stations
         for ibuffer, station  in enumerate(self.config.stations):
-            station['raw_buffer'] =  self.logger.file.data[ibuffer]
+            station['raw_buffer'] =  self.logger.sid_file.data[ibuffer]
 
         # Create Timer
         self.viewer.status_display("Waiting for Timer ... ")
@@ -111,7 +110,7 @@ class SuperSID():
         
 
     def clear_all_data_buffers(self):
-        self.logger.file.clear_buffer(next_day = True)
+        self.logger.sid_file.clear_buffer(next_day = True)
 
     def on_timer(self):
         # current_index is the position in the buffer calculated from current UTC time
@@ -140,31 +139,34 @@ class SuperSID():
             # do we need to save some files (hourly) or switch to a new day?
             if self.timer.utc_now.minute == 0 and self.timer.utc_now.second < self.config['log_interval']:
                 if self.config['hourly_save'] == 'YES':
-                    fileName = "hourly_current_buffers.raw.ext.%s.csv" % (self.logger.file.sid_params['utc_starttime'][:10])
-                    self.save_current_buffers(filename=fileName, log_type='raw', log_format='supersid_format', extended = True)  
+                    fileName = "hourly_current_buffers.raw.ext.%s.csv" % (self.logger.sid_file.sid_params['utc_starttime'][:10])
+                    self.save_current_buffers(filename=fileName, log_type='raw', log_format='supersid_extended')  
                 # a new day!
                 if self.timer.utc_now.hour == 0:
-                    self.save_current_buffers(log_type=self.config['log_type'], log_format='both')
+                    # use log_type and log_format requested by the user in the .cfg
+                    self.save_current_buffers(log_type=self.config['log_type'], log_format=self.config['log_format'])
                     self.clear_all_data_buffers()
-                    self.timer.date_begin_epoch += 60*60*24 
             # Save signal strengths into memory buffers ; prepare message for status bar
             message = self.timer.get_utc_now() + "  [%d]  " % current_index
             for station, strength in zip(self.config.stations, signal_strengths):
                 station['raw_buffer'][current_index] = strength
                 message +=  station['call_sign'] + "=%f " % strength
-            self.logger.file.timestamp[current_index] = utc_now
+            self.logger.sid_file.timestamp[current_index] = utc_now
 
         # end of this thread/need to handle to View to display captured data & message
         self.viewer.status_display(message, level=2)
 
-    def save_current_buffers(self, filename="current_buffers.csv", log_type='raw', log_format = 'both', extended = False):
-        ''' Save raw data as supersid_format '''
+    def save_current_buffers(self, filename='', log_type='raw', log_format = 'both'):
+        ''' Save buffer data from logger.sid_file
+       
+            log_type = raw or filtered
+            log_format = sid_format|sid_extended|supersid_format|supersid_extended|both|both_extended'''
         filenames = []
-        if log_format in ('both', 'sid_format'):
-            fnames = self.logger.log_sid_format(self.config.stations, self.timer.date_begin_epoch, '', log_type=log_type, extended=extended) # filename is '' to ensure one file per station
+        if log_format.startswith('both') or log_format.startswith('sid_'):
+            fnames = self.logger.log_sid_format(self.config.stations, '', log_type=log_type, extended=log_format.endswith('extended')) # filename is '' to ensure one file per station
             filenames += fnames
-        if log_format in ('both', 'supersid_format'):
-            fnames = self.logger.log_supersid_format(self.config.stations, self.timer.date_begin_epoch, filename, log_type=log_type, extended=extended)
+        if log_format.startswith('both') or log_format.startswith('supersid_'):
+            fnames = self.logger.log_supersid_format(self.config.stations, filename, log_type=log_type, extended=log_format.endswith('extended'))
             filenames += fnames
         return filenames
         

@@ -34,9 +34,11 @@ class textSidViewer:
         print ("\n" + "-" * self.MAXLINE)
         print ("Site:", self.controller.config['site_name'], " " * 20, end='')
         print ("Monitor:", self.controller.config['monitor_id'])
-        print (" S) Save filtered buffers")
+        print ("-" * self.MAXLINE)
+        print (" F) save Filtered buffers")
         print (" R) save Raw buffers")
-        print (" E) Extended raw buffers")
+        print (" E) save Extended raw buffers")
+        print ("-" * self.MAXLINE)
         print (" C) list the Config file(s) parameters")
         print (" V) Version")
         print (" ?) display this menu")
@@ -47,10 +49,10 @@ class textSidViewer:
         s = self.getch().lower()
         if s == 'x':
             self.controller.close()
-        elif s in ('s', 'r', 'e'):
+        elif s in ('f', 'r', 'e'):
             print ("\n\n")
-            for fname in self.controller.save_current_buffers(log_type='raw' if s in ['r','e'] else 'filtered',
-                                                              extended = (s == 'e')):
+            for fname in self.controller.save_current_buffers(log_type = 'filtered' if s=='f' else 'raw', 
+                                                              log_format = 'both_extended' if s == 'e' else 'both'):
                 print (fname, "saved")
             self.print_menu()
         elif s == '?':
@@ -68,7 +70,7 @@ class textSidViewer:
                 print ("Timer:", self.controller.timer.version)
                 print ("Config:", self.controller.config.version)
                 print ("Logger:",self.controller.logger.version)
-                print ("Sidfile:",self.controller.logger.file.version)
+                print ("Sidfile:",self.controller.logger.sid_file.version)
                 print ("Text viewer:", self.version)
             except AttributeError:
                 print ("Version not found")
