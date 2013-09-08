@@ -374,6 +374,8 @@ if __name__ == '__main__':
                             help="Merge 2 sid_format in one supersid_format / 2 supersid_extended in one supersid_extended")
     parser.add_argument("-i", "--info", dest="filename_info", required=False, type=exist_file, 
                             help="Display information about one file")
+    parser.add_argument("-f", "--filter", dest="filename_filter", required=False, type=exist_file, 
+                            help="Filter a raw file")    
     args, unk = parser.parse_known_args() 
     if args.filename_info:
         sid = SidFile(args.filename_info, force_read_timestamp = True)
@@ -439,7 +441,18 @@ if __name__ == '__main__':
         else:
             sid1.data += sid2.data
             sid1.write_data_sid(sid1.stations[0], fmerge(sid1.filename), sid1.sid_params['logtype'], apply_bema = False)
-            print(fmerge(sid1.filename), "created.")                
+            print(fmerge(sid1.filename), "created.")
+    
+    elif args.filename_filter:
+        sid = SidFile(args.filename_filter, force_read_timestamp = True)
+        fname = "%s.filtered%s" % path.splitext(args.filename_filter)
+        if sid.sid_params['logtype'] != 'raw':
+            print("Warning: %s is not a raw file. This might filter an already filetered file." % args.filename_filter)
+        if sid.isSuperSID:
+            sid.write_data_supersid(fname, log_type='filtered', apply_bema = True, extended = sid.is_extended)
+        else:
+            sid.write_data_sid(sid.stations[0], fname, log_type='filtered', apply_bema = True, extended = sid.is_extended)
+        
     else:
         parser.print_help()
             
