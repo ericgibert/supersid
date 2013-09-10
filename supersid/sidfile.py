@@ -110,7 +110,7 @@ class SidFile():
             self.LogInterval, self.sid_params["log_interval"] = 5, 5
 
     def set_all_date_attributes(self, keep_file_date = False):
-        if not keep_file_date:
+        if not keep_file_date or "utc_starttime" not in self.sid_params:
             utcnow = datetime.utcnow()
             self.sid_params["utc_starttime"] = "%d-%02d-%02d 00:00:00" % (utcnow.year, utcnow.month, utcnow.day)
         self.UTC_StartTime = self.sid_params["utc_starttime"]
