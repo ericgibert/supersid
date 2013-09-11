@@ -130,8 +130,10 @@ class SuperSID_scanner():
             # did we complete the expected scanning duration?
             if self.timer.time_now >= self.scan_end_time:
                 fileName = "scanner_buffers.raw.ext.%s.csv" % (self.logger.sid_file.sid_params['utc_starttime'][:10])
-                self.save_current_buffers(filename=fileName, log_type='raw', log_format='supersid_extended')
+                fsaved = self.save_current_buffers(filename=fileName, log_type='raw', log_format='supersid_extended')
+                print (fsaved,"saved.")
                 self.close()
+                exit(0))
 
         # end of this thread/need to handle to View to display captured data & message
         self.viewer.status_display(message, level=2)
