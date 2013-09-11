@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/python
 '''
     supersid_plot
     version: 1.3.1 enhanced for Python 2.7 and 3.3
@@ -42,10 +42,10 @@ from config import Config
 def sendMail(config, To_mail, msgBody, PDFfile):
     """Send the mail using the smtplib module
        The plot (as PDF) attached"""
-    senderEmail = config["from_mail"]
-    mailserver = config["email_server"]
-    mailserveruser = config["email_login"]           # <-- set to None if no login required
-    mailserverpasswd = config["email_password"]      # <-- set to None if no login required
+    senderEmail = config.get("from_mail","")
+    mailserver = config.get("email_server","")
+    mailserveruser = config.get("email_login","")          # <-- set to None if no login required
+    mailserverpasswd = config.get("email_password","")     # <-- set to None if no login required
 
     # create the mail message
     msg = MIMEMultipart(_subtype='html')
@@ -259,7 +259,7 @@ if __name__ == '__main__':
      Usage:   supersid_plot.py  "filename*.csv"\n
      Note: " are optional on Windows, mandatory on *nix\n
      Other options:  supersid_plot.py -h\n""")
-    parser.add_argument("-c", "--config", dest="cfg_filename", required=True,
+    parser.add_argument("-c", "--config", dest="cfg_filename", required=False, default='',
               help="SuperSID Configuration file")
     parser.add_argument("-f", "--file", dest="filename",
               help="Read SID and SuperSID csv file(s). Wildcards accepted.", metavar="FILE|FILE*.csv")
@@ -286,7 +286,10 @@ if __name__ == '__main__':
     (args, unk) = parser.parse_known_args()
     #print ("Options:",args)
     #print ("Files:", unk)
-    config = Config(args.cfg_filename)
+    if args.cfg_filename:
+        config = Config(args.cfg_filename)
+    else:
+        config={}
     #print (config)
     if args.filename is None: # no --file option specified
         if len(unk) > 0:  # last non options argumentss are assumed to be a list of file names

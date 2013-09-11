@@ -140,7 +140,7 @@ class SidFile():
         New: Extended format supports a timestamp for SuperSID format as well as .%f for second decimals
         """
         first_data_line = self.lines[self.headerNbLines].split(",")
-        if '-' in first_data_line[0]: # yes, a time stamp is found in the first data column
+        if ':' in first_data_line[0]: # yes, a time stamp is found in the first data column
             try:
                 datetime.strptime(first_data_line[0], SidFile._TIMESTAMP_EXTENDED)
                 self.is_extended = True
