@@ -30,7 +30,7 @@ class SuperSID_scanner():
     '''
     running = False  # class attribute to indicate if the SID application is running
 
-    def __init__(self, config_file='', scan_params=(15,16000,24000):
+    def __init__(self, config_file='', scan_params=(15,16000,24000)):
         self.version = "1.3.1 20130910"
         self.timer = None
         self.sampler = None
@@ -50,6 +50,7 @@ class SuperSID_scanner():
             print(self.config.filenames) # good for debugging: what .cfg file(s) were actually read
 
         (self.scan_duration, self.scan_from, self.scan_to) = scan_params
+        print ("Scanning for %d minutes on [%d:%d]..." % scan_params)
         # create an artificial list of stations
         self.config.stations = []
         for freq in range(self.scan_from, self.scan_to+100, 100):
@@ -59,7 +60,7 @@ class SuperSID_scanner():
             self.config.stations.append(new_station)
 
         # Create Logger - Logger will read an existing file if specified as -r|--read script argument
-        self.logger = Logger(self, read_file)
+        self.logger = Logger(self,'')
         if 'utc_starttime' not in self.config:
             self.config['utc_starttime'] = self.logger.sid_file.sid_params["utc_starttime"]
 
@@ -187,11 +188,11 @@ def exist_file(x):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--duration", dest="scan_duration", required=False, type=int, default=15
+    parser.add_argument("-d", "--duration", dest="scan_duration", required=False, type=int, default=15,
                         help="Scan a large range of frequencies for a period of the given number of minutes")
-    parser.add_argument("-f", "--from", dest="scan_from", required=False, type=int, default=16000
+    parser.add_argument("-f", "--from", dest="scan_from", required=False, type=int, default=16000,
                         help="Scan from the given frequency")
-    parser.add_argument("-t", "--to", dest="scan_to", required=False, type=int, default=24000
+    parser.add_argument("-t", "--to", dest="scan_to", required=False, type=int, default=24000,
                         help="Scan to the given frequency")
     parser.add_argument('config_file', nargs='?', default='')
     args, unk = parser.parse_known_args()
