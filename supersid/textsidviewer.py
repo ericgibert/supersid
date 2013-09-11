@@ -18,18 +18,18 @@ class textSidViewer:
         self.print_menu()
         self.timer = Timer(0.5, self.check_keyboard)
         self.timer.start()
-        
-        
+
+
     def status_display(self, msg, level = 0):
         print (("\r" + msg + " "*self.MAXLINE)[:self.MAXLINE],  end='')
         sys.stdout.flush()
-        
+
     def clear(self):
         pass
-    
+
     def close(self):
         self.timer.cancel()
-    
+
     def print_menu(self):
         print ("\n" + "-" * self.MAXLINE)
         print ("Site:", self.controller.config['site_name'], " " * 20, end='')
@@ -44,14 +44,14 @@ class textSidViewer:
         print (" ?) display this menu")
         print (" X) eXit (without saving)")
         print ("-" * self.MAXLINE)
-        
+
     def check_keyboard(self):
         s = self.getch().lower()
         if s == 'x':
             self.controller.close()
         elif s in ('f', 'r', 'e'):
             print ("\n\n")
-            for fname in self.controller.save_current_buffers(log_type = 'filtered' if s=='f' else 'raw', 
+            for fname in self.controller.save_current_buffers(log_type = 'filtered' if s=='f' else 'raw',
                                                               log_format = 'both_extended' if s == 'e' else 'both'):
                 print (fname, "saved")
             self.print_menu()
@@ -80,5 +80,4 @@ class textSidViewer:
         if s != 'x':
             self.timer = Timer(0.5, self.check_keyboard)
             self.timer.start()
-        
-        
+

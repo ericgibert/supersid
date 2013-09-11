@@ -23,24 +23,14 @@ from config import Config
 from logger import Logger
 from textsidviewer import textSidViewer
 
-# special case: 'wx' module might not be installed (text mode only) or even available (python 3)
-try:
-    # wx.App() object is necessary in Controller to run the event loop, not for any graphic
-    from wx import App
-    from wxsidviewer import wxSidViewer
-    wx_imported = True
-except ImportError:
-    print("'wx' module not imported. Text mode only.")
-    wx_imported = False
-
-class SuperSID():
+class SuperSID_scanner():
     '''
     This is the main class which creates all other objects.
     In CMV pattern, this is the Controller.
     '''
     running = False  # class attribute to indicate if the SID application is running
 
-    def __init__(self, config_file='', read_file='', scan_duration=-1):
+    def __init__(self, config_file='', scan_params=(15,16000,24000):
         self.version = "1.3.1 20130910"
         self.timer = None
         self.sampler = None
@@ -59,17 +49,15 @@ class SuperSID():
         else:
             print(self.config.filenames) # good for debugging: what .cfg file(s) were actually read
 
-        if scan_duration > 0:
-            # create an artificial list of stations
-            self.is_scanning = True
-            self.config.stations = []
-            for freq in range(19000, 22100, 100):
-                new_station = {}
-                new_station['call_sign'] = "ST_%d" % freq
-                new_station['frequency'] = str(freq)
-                self.config.stations.append(new_station)
-        else:
-            self.is_scanning = False
+        (self.scan_duration, self.scan_from, self.scan_to) = scan_params
+        # create an artificial list of stations
+        self.config.stations = []
+        for freq in range(self.scan_from, self.scan_to+100, 100):
+            new_station = {}
+            new_station['call_sign'] = "ST_%d" % freq
+            new_station['frequency'] = str(freq)
+            self.config.stations.append(new_station)
+
         # Create Logger - Logger will read an existing file if specified as -r|--read script argument
         self.logger = Logger(self, read_file)
         if 'utc_starttime' not in self.config:
@@ -77,21 +65,9 @@ class SuperSID():
 
         # Create the viewer based on the .cfg specification (or set default):
         # Note: the list of Viewers can be extended provided they implement the same interface
-        if self.config['viewer'] == 'wx':       # GUI Frame to display real-time VLF Spectrum based on wxPython
-            self.viewer = wxSidViewer(self)
-            self.viewer.Show()
-        elif self.config['viewer'] == 'text':   # Lighter text version a.k.a. "console mode"
-            self.viewer = textSidViewer(self)
-        else:
-            print("ERROR: Unknown viewer", sid.config['viewer'])
-            exit(2)
-
-        # Assign desired psd function for calculation after capture
-        # currently: using matplotlib's psd
-        if self.config['viewer'] == 'wx':
-            self.psd = self.viewer.get_psd  # calculate psd and draw result in one call
-        else:
-            self.psd = mlab_psd             # calculation only
+        self.config['viewer'] = 'text'   # Lighter text version a.k.a. "console mode"
+        self.viewer = textSidViewer(self)
+        self.psd = mlab_psd             # calculation only
 
         # calculate Stations' buffer_size
         self.buffer_size = int(24*60*60 / self.config['log_interval'])
@@ -111,7 +87,7 @@ class SuperSID():
         # Create Timer
         self.viewer.status_display("Waiting for Timer ... ")
         self.timer = SidTimer(self.config['log_interval'], self.on_timer)
-        self.scan_end_time = self.timer.start_time + 60 * scan_duration
+        self.scan_end_time = self.timer.start_time + 60 * self.scan_duration
 
 
     def clear_all_data_buffers(self):
@@ -143,29 +119,18 @@ class SuperSID():
 
         # ensure that one thread at the time accesses the sid_file's' buffers
         with self.timer.lock:
-            if self.is_scanning:
-                if self.timer.time_now >= self.scan_end_time:
-                    fileName = "scanner_buffers.raw.ext.%s.csv" % (self.logger.sid_file.sid_params['utc_starttime'][:10])
-                    self.save_current_buffers(filename=fileName, log_type='raw', log_format='supersid_extended')
-                    self.close()
-            # do we need to save some files (hourly) or switch to a new day?
-            elif self.timer.utc_now.minute == 0 and self.timer.utc_now.second < self.config['log_interval']:
-                if self.config['hourly_save'] == 'YES':
-                    fileName = "hourly_current_buffers.raw.ext.%s.csv" % (self.logger.sid_file.sid_params['utc_starttime'][:10])
-                    self.save_current_buffers(filename=fileName, log_type='raw', log_format='supersid_extended')
-                # a new day!
-                if self.timer.utc_now.hour == 0:
-                    # use log_type and log_format(s) requested by the user in the .cfg
-                    for log_format in self.config['log_format'].split(','):
-                        self.save_current_buffers(log_type=self.config['log_type'], log_format=log_format)
-                    self.clear_all_data_buffers()
             # Save signal strengths into memory buffers ; prepare message for status bar
             message = self.timer.get_utc_now() + "  [%d]  " % current_index
             message += "%d" % (self.scan_end_time - self.timer.time_now)
             for station, strength in zip(self.config.stations, signal_strengths):
                 station['raw_buffer'][current_index] = strength
-                #message +=  station['call_sign'] + "=%f " % strength
             self.logger.sid_file.timestamp[current_index] = utc_now
+
+            # did we complete the expected scanning duration?
+            if self.timer.time_now >= self.scan_end_time:
+                fileName = "scanner_buffers.raw.ext.%s.csv" % (self.logger.sid_file.sid_params['utc_starttime'][:10])
+                self.save_current_buffers(filename=fileName, log_type='raw', log_format='supersid_extended')
+                self.close()
 
         # end of this thread/need to handle to View to display captured data & message
         self.viewer.status_display(message, level=2)
@@ -222,18 +187,15 @@ def exist_file(x):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--read", dest="filename", required=False, type=exist_file,
-                        help="Read raw file and continue recording")
-    parser.add_argument("-S", "--Scanner", dest="scan_duration", required=False, type=int,
+    parser.add_argument("-d", "--duration", dest="scan_duration", required=False, type=int, default=15
                         help="Scan a large range of frequencies for a period of the given number of minutes")
+    parser.add_argument("-f", "--from", dest="scan_from", required=False, type=int, default=16000
+                        help="Scan from the given frequency")
+    parser.add_argument("-t", "--to", dest="scan_to", required=False, type=int, default=24000
+                        help="Scan to the given frequency")
     parser.add_argument('config_file', nargs='?', default='')
     args, unk = parser.parse_known_args()
 
-    # wx application - mandatory for viewer = 'wx', ignored for other viewer
-    wx_app = App(redirect=False) if wx_imported else None
-    sid = SuperSID(config_file=args.config_file, scan_duration=args.scan_duration)
-    sid.run(wx_app=wx_app)
-    sid.close()
-    if wx_app: wx_app.Exit()
-
-
+    scanner = SuperSID_scanner(config_file=args.config_file, scan_params=(args.scan_duration, args.scan_from, args.scan_to))
+    scanner.run()
+    scanner.close()
