@@ -87,7 +87,7 @@ class SuperSID_scanner():
 
         # Create Timer
         self.viewer.status_display("Waiting for Timer ... ")
-        self.timer = SidTimer(self.config['log_interval'], self.on_timer)
+        self.timer = SidTimer(self.config['log_interval'], self.on_timer, delay=2)
         self.scan_end_time = self.timer.start_time + 60 * self.scan_duration
 
 
@@ -133,7 +133,7 @@ class SuperSID_scanner():
                 fsaved = self.save_current_buffers(filename=fileName, log_type='raw', log_format='supersid_extended')
                 print (fsaved,"saved.")
                 self.close()
-                exit(0))
+                exit(0)
 
         # end of this thread/need to handle to View to display captured data & message
         self.viewer.status_display(message, level=2)

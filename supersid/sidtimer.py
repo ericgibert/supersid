@@ -11,7 +11,7 @@ from datetime import datetime
 import threading
 
 class SidTimer():
-    def __init__(self, interval, callback):
+    def __init__(self, interval, callback, delay=0):
         """Synchronize the timer and start the trigger mechanism.
             Public properties:
             - start_time: reference startig time.time() in local time *on the interval* (synchro)
@@ -27,8 +27,8 @@ class SidTimer():
         while now.tm_sec % self.interval != 0:
             time.sleep(0.05)
             now = time.gmtime()
-        # request a Timer     
-        self.start_time = int(time.time() / self.interval) * self.interval
+        # request a Timer   
+        self.start_time = int(time.time() / self.interval) * self.interval + delay
         self.expected_time = self.start_time + self.interval
         self._timer = threading.Timer(self.expected_time - time.time(), self._ontimer)
         self._timer.start()
