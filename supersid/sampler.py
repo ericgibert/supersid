@@ -57,7 +57,8 @@ try:
     
     class pyaudio_soundcard():
         def __init__(self, audio_sampling_rate):
-            FORMAT = pyaudio.paInt16
+            self.FORMAT = pyaudio.paInt16
+            self.CHUNK = 1024
             self.pa_lib = pyaudio.PyAudio()
             self.audio_sampling_rate = audio_sampling_rate
             
@@ -65,18 +66,26 @@ try:
             #    print i, ":", self.pa_lib.get_device_info_by_index(i)
             # print "d :", self.pa_lib.get_default_input_device_info()      
         
-            self.pa_stream = self.pa_lib.open(format = FORMAT,
+            self.pa_stream = self.pa_lib.open(format = self.FORMAT,
                                           channels = 1,
                                           rate = self.audio_sampling_rate,
                                           input = True,
-                                          frames_per_buffer = self.audio_sampling_rate)
+                                          frames_per_buffer = self.CHUNK)
             self.name = "pyaudio sound card capture"
             
         def capture_1sec(self):
-            raw_data = self.pa_stream.read(self.audio_sampling_rate)
-            return array(st_unpack("%ih"%(self.audio_sampling_rate), raw_data[:2 * self.audio_sampling_rate]))
+            raw_data = self.capture(1)  # self.pa_stream.read(self.audio_sampling_rate)
+            return array(st_unpack("%ih" % self.audio_sampling_rate, raw_data[:2 * self.audio_sampling_rate]))
+
+        def capture(self, secs):
+            frames = []
+            for i in range(0, int(self.audio_sampling_rate / self.CHUNK * secs)):
+                data = self.pa_stream.read(self.CHUNK)
+                frames.append(data)
+            return frames
         
         def close(self):
+            self.pa_stream.stop_stream()
             self.pa_stream.close()
             self.pa_lib.terminate()
             

@@ -74,12 +74,12 @@ class SuperSID_scanner():
         self.buffer_size = int(24*60*60 / self.config['log_interval'])
 
         # Create Sampler to collect audio buffer (sound card or other server)
-        self.sampler = Sampler(self, audio_sampling_rate = self.config['audio_sampling_rate'], NFFT = 1024);
+        self.sampler = Sampler(self, audio_sampling_rate = self.config['audio_sampling_rate'], NFFT = 1024)
         if not self.sampler.sampler_ok:
             self.close()
             exit(3)
         else:
-            self.sampler.set_monitored_frequencies(self.config.stations);
+            self.sampler.set_monitored_frequencies(self.config.stations)
 
         # Link the logger.sid_file.data buffers to the config.stations
         for ibuffer, station  in enumerate(self.config.stations):
@@ -139,10 +139,10 @@ class SuperSID_scanner():
         self.viewer.status_display(message, level=2)
 
     def save_current_buffers(self, filename='', log_type='raw', log_format = 'both'):
-        ''' Save buffer data from logger.sid_file
+        """ Save buffer data from logger.sid_file
 
             log_type = raw or filtered
-            log_format = sid_format|sid_extended|supersid_format|supersid_extended|both|both_extended'''
+            log_format = sid_format|sid_extended|supersid_format|supersid_extended|both|both_extended"""
         filenames = []
         if log_format.startswith('both') or log_format.startswith('sid'):
             fnames = self.logger.log_sid_format(self.config.stations, '', log_type=log_type, extended=log_format.endswith('extended')) # filename is '' to ensure one file per station
@@ -185,7 +185,7 @@ def exist_file(x):
     'Type' for argparse - checks that file exists but does not open.
     """
     if not os.path.isfile(x):
-        raise argparse.ArgumentError("{0} does not exist".format(x))
+        raise argparse.ArgumentError('{} does not exist'.format(x))
     return x
 
 if __name__ == '__main__':
@@ -196,9 +196,29 @@ if __name__ == '__main__':
                         help="Scan from the given frequency")
     parser.add_argument("-t", "--to", dest="scan_to", required=False, type=int, default=24000,
                         help="Scan to the given frequency")
+    parser.add_argument("-r", "--record", dest="record_sec", required=False, type=int, default=1,
+                        help="record specified seconds of sound - testing pyaudio")
     parser.add_argument('config_file', nargs='?', default='')
     args, unk = parser.parse_known_args()
 
-    scanner = SuperSID_scanner(config_file=args.config_file, scan_params=(args.scan_duration, args.scan_from, args.scan_to))
-    scanner.run()
-    scanner.close()
+    if args.record_sec:
+        from sampler import pyaudio_soundcard
+        import wave
+        RATE = 44100
+
+        card = pyaudio_soundcard(RATE)
+        frames = card.capture(args.record_sec)
+        card.close()
+
+        wf = wave.open("record_test.wav", 'wb')
+        wf.setnchannels(1)
+        wf.setsampwidth(card.pa_lib.get_sample_size(card.FORMAT))
+        wf.setframerate(RATE)
+        wf.writeframes(b''.join(frames))
+        wf.close()
+
+
+    else:
+        scanner = SuperSID_scanner(config_file=args.config_file, scan_params=(args.scan_duration, args.scan_from, args.scan_to))
+        scanner.run()
+        scanner.close()
