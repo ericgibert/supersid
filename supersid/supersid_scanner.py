@@ -196,7 +196,7 @@ if __name__ == '__main__':
                         help="Scan from the given frequency")
     parser.add_argument("-t", "--to", dest="scan_to", required=False, type=int, default=24000,
                         help="Scan to the given frequency")
-    parser.add_argument("-r", "--record", dest="record_sec", required=False, type=int, default=1,
+    parser.add_argument("-r", "--record", dest="record_sec", required=False,
                         help="record specified seconds of sound - testing pyaudio")
     parser.add_argument('config_file', nargs='?', default='')
     args, unk = parser.parse_known_args()
@@ -204,10 +204,18 @@ if __name__ == '__main__':
     if args.record_sec:
         from sampler import pyaudio_soundcard
         import wave
-        RATE = 44100
+
+        # record_sec as x seconds or s,f for sec,frequence
+        if ',' in args.record_sec:
+            sec, freq = args.record_sec.split(',')
+            RATE = int(freq)
+            SEC = int(sec)
+        else:
+            RATE = 44100
+            SEC = int(args.record_sec)
 
         card = pyaudio_soundcard(RATE)
-        frames = card.capture(args.record_sec)
+        frames = card.capture(SEC)
         card.close()
 
         wf = wave.open("record_test.wav", 'wb')

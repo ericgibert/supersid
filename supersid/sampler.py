@@ -43,7 +43,7 @@ try:
             while len(raw_data) < 2 * self.audio_sampling_rate:
                 length,data = self.inp.read()
                 if length> 0: raw_data += data
-            return array(st_unpack("%ih"%(self.audio_sampling_rate), raw_data[:2 * self.audio_sampling_rate]))
+            return array(st_unpack("%ih"%self.audio_sampling_rate, raw_data[:2 * self.audio_sampling_rate]))
         
         def close(self):
             pass  # to check later if there is something to do
@@ -62,10 +62,15 @@ try:
             self.pa_lib = pyaudio.PyAudio()
             self.audio_sampling_rate = audio_sampling_rate
             
-            # for i in range(self.pa_lib.get_device_count()):
-            #    print i, ":", self.pa_lib.get_device_info_by_index(i)
-            # print "d :", self.pa_lib.get_default_input_device_info()      
-        
+            #for i in range(self.pa_lib.get_device_count()):
+            #    print(i, ":", self.pa_lib.get_device_info_by_index(i))
+            #print("d :", self.pa_lib.get_default_input_device_info())
+            #defaultCapability = self.pa_lib.get_default_host_api_info()
+            #print ("defaultCapability", defaultCapability)
+            #isSupported = self.pa_lib.is_format_supported(input_format=self.FORMAT, input_channels=1,
+            #                                           rate=self.audio_sampling_rate, input_device=0)
+            #print ("isSupported", isSupported)
+
             self.pa_stream = self.pa_lib.open(format = self.FORMAT,
                                           channels = 1,
                                           rate = self.audio_sampling_rate,
@@ -74,15 +79,22 @@ try:
             self.name = "pyaudio sound card capture"
             
         def capture_1sec(self):
-            raw_data = self.capture(1)  # self.pa_stream.read(self.audio_sampling_rate)
-            return array(st_unpack("%ih" % self.audio_sampling_rate, raw_data[:2 * self.audio_sampling_rate]))
+            raw_data = b''.join(self.capture(1))  # self.pa_stream.read(self.audio_sampling_rate)
+            unpacked_data = st_unpack("{}h".format(self.audio_sampling_rate), raw_data)
+            return array(unpacked_data)
 
         def capture(self, secs):
             frames = []
-            for i in range(0, int(self.audio_sampling_rate / self.CHUNK * secs)):
-                data = self.pa_stream.read(self.CHUNK)
-                frames.append(data)
-            return frames
+            expected_number_of_bytes = 2 * self.audio_sampling_rate * secs #int(self.audio_sampling_rate / self.CHUNK * secs)
+            while len(frames) < expected_number_of_bytes:
+                try:
+                    data = self.pa_stream.read(self.CHUNK)
+                    frames.extend(data)
+                    #print(len(data), len(frames))
+                except IOError as io:
+                    #print("IOError reading card:", str(io))
+                    pass
+            return frames[:expected_number_of_bytes]
         
         def close(self):
             self.pa_stream.stop_stream()
