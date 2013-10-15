@@ -58,7 +58,7 @@ class Logger():
         for station in stations:       
             my_filename = self.config.data_path + (filename or self.sid_file.get_sid_filename(station['call_sign']))
             filenames.append(my_filename)
-            self.sid_file.write_data_sid(station, my_filename, log_type, extended=extended)  
+            self.sid_file.write_data_sid(station, my_filename, log_type, extended=extended, bema_wing=self.config["bema_wing"])
         return filenames
     
     def log_supersid_format(self, stations, filename='', log_type='filtered', extended = False):
@@ -66,6 +66,6 @@ class Logger():
         filenames = []
         my_filename = self.config.data_path + (filename or self.sid_file.get_supersid_filename())
         filenames.append(my_filename)
-        self.sid_file.write_data_supersid(my_filename, log_type, extended=extended)
+        self.sid_file.write_data_supersid(my_filename, log_type, extended=extended, bema_wing=self.config["bema_wing"])
         return filenames
     

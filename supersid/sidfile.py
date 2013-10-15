@@ -267,7 +267,7 @@ class SidFile():
         else:
             return self.stations.index(station.call_sign)  # throw a ValueError if 'station' is not in the list
 
-    def write_data_sid(self, station, filename, log_type, apply_bema = True, extended = False):
+    def write_data_sid(self, station, filename, log_type, apply_bema = True, extended = False, bema_wing = 6):
         """Write in the file 'filename' the dataset of the given station using the SID format
         i.e. "TimeStamp, Data" lines
         Header respects the SID format definition i.e. conversion if self is SuperSid
@@ -282,7 +282,7 @@ class SidFile():
         if log_type == 'raw' or apply_bema == False:
             tmp_data = self.data[iStation]
         else: # filtered
-            tmp_data = SidFile.filter_buffer(self.data[iStation], self.LogInterval);
+            tmp_data = SidFile.filter_buffer(self.data[iStation], self.LogInterval, bema_wing = bema_wing)
         # write file in SID format
         with open(filename, "wt") as fout:
             # generate header
@@ -293,7 +293,7 @@ class SidFile():
             for t_stamp, x in zip(self.timestamp, tmp_data):
                 print("%s, %.15f" % (t_stamp.strftime(timestamp_format), x), file=fout)
 
-    def write_data_supersid(self, filename, log_type, apply_bema = True, extended = False):
+    def write_data_supersid(self, filename, log_type, apply_bema = True, extended = False, bema_wing = 6):
         """Write the SuperSID file. Attention: self.sid_params must contain all expected entries."""
         # force to SuperSid format
         hdr = self.create_header(isSuperSid = True, log_type = log_type)
@@ -306,7 +306,7 @@ class SidFile():
             else: # filtered
                 tmp_data = []
                 for stationData in self.data:
-                    tmp_data.append(SidFile.filter_buffer(stationData, self.LogInterval))
+                    tmp_data.append(SidFile.filter_buffer(stationData, self.LogInterval, bema_wing = bema_wing))
                 tmp_data = numpy.array(tmp_data)
             #print(tmp_data.shape)  # should be like (2, 17280)
             if extended:
@@ -332,8 +332,8 @@ class SidFile():
             '''
             length = len(raw_buffer)
             # Extend 2 wings to the raw data buffer before taking min and average
-            dstack = numpy.hstack((raw_buffer[length-bema_wing:length],\
-                                   raw_buffer[0:length],\
+            dstack = numpy.hstack((raw_buffer[length-bema_wing:length],
+                                   raw_buffer[0:length],
                                    raw_buffer[0:bema_wing]))
             # Fill the 2 wings with the values at the edge
             dstack[0:bema_wing] = raw_buffer[0]  #  dstack[bema_wing]
@@ -380,6 +380,8 @@ if __name__ == '__main__':
                             help="Display information about one file")
     parser.add_argument("-f", "--filter", dest="filename_filter", required=False, type=exist_file,
                             help="Filter a raw file")
+    parser.add_argument("-b", "--bema_wing", dest="bema_wing", required=False, type=int, default=6,
+                            help="Width of the window used in filtering a.k.a. 'bema_wing' (default=6)")
     args, unk = parser.parse_known_args()
     if args.filename_info:
         sid = SidFile(args.filename_info, force_read_timestamp = True)
@@ -452,10 +454,11 @@ if __name__ == '__main__':
         fname = "%s.filtered%s" % path.splitext(args.filename_filter)
         if sid.sid_params['logtype'] != 'raw':
             print("Warning: %s is not a raw file. This might filter an already filetered file." % args.filename_filter)
+        bema_wing = args.bema_wing if args.bema_wing else 6
         if sid.isSuperSID:
-            sid.write_data_supersid(fname, log_type='filtered', apply_bema = True, extended = sid.is_extended)
+            sid.write_data_supersid(fname, log_type='filtered', apply_bema = True, extended = sid.is_extended, bema_wing=bema_wing)
         else:
-            sid.write_data_sid(sid.stations[0], fname, log_type='filtered', apply_bema = True, extended = sid.is_extended)
+            sid.write_data_sid(sid.stations[0], fname, log_type='filtered', apply_bema = True, extended = sid.is_extended, bema_wing=bema_wing)
 
     else:
         parser.print_help()

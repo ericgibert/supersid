@@ -47,6 +47,7 @@ class Config(dict):
                                     ('log_format', str, 'sid_format'),  # sid_format (default), supersid_format
                                     ('mode', str, 'Standalone'),        # Server, Client, Standalone (default)
                                     ('viewer', str, 'wx'),              # text, wx (default)
+                                    ('beta_wing', int, 6),              # beta_wing for sidfile.filter_buffer()
                                     # mandatory entries
                                     ('site_name', str, None),
                                     ('longitude', str, None),
@@ -102,7 +103,7 @@ class Config(dict):
                         self.config_err = "'"+pkey+"' is not found in 'supersid.cfg'. Please check."
                         return
                     else: # optional, assign default
-                        self.get(pkey, pdefault)
+                        self.setdefault(pkey, pdefault)
                 else:
                     self.sectionfound.add(section)
 
