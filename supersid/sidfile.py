@@ -453,7 +453,7 @@ if __name__ == '__main__':
         sid = SidFile(args.filename_filter, force_read_timestamp = True)
         fname = "%s.filtered%s" % path.splitext(args.filename_filter)
         if sid.sid_params['logtype'] != 'raw':
-            print("Warning: %s is not a raw file. This might filter an already filetered file." % args.filename_filter)
+            print("Warning: %s is not a raw file. This might filter an already filtered file." % args.filename_filter)
         bema_wing = args.bema_wing if args.bema_wing else 6
         if sid.isSuperSID:
             sid.write_data_supersid(fname, log_type='filtered', apply_bema = True, extended = sid.is_extended, bema_wing=bema_wing)
