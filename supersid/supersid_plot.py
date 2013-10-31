@@ -283,16 +283,23 @@ if __name__ == '__main__':
               help="Site ID to use in the file name", metavar="SITE_ID")
     parser.add_argument("-s", "--station", dest="station_id",
               help="Station ID to use in the file name", metavar="STAID")
+    parser.add_argument("-v", "--verbose",
+              action="store_true", dest="verbose", default=False,
+              help="Print more messages.")
     (args, unk) = parser.parse_known_args()
     #print ("Options:",args)
     #print ("Files:", unk)
     if args.cfg_filename:
         config = Config(args.cfg_filename)
+        if args.verbose: 
+            print(args.cfg_filename, "read as config file.")
+            for k, v in config.items():
+                print(k, "=", v)
     else:
         config={}
     #print (config)
     if args.filename is None: # no --file option specified
-        if len(unk) > 0:  # last non options argumentss are assumed to be a list of file names
+        if len(unk) > 0:  # last non options arguments are assumed to be a list of file names
             filenames = ",".join(unk)
         else:
             # try building the file name from given options or found in the provided .cfg file
@@ -303,12 +310,17 @@ if __name__ == '__main__':
             lstFileNames = []
             strStations = args.station_id or ",".join([s["call_sign"] for s in config.stations])
             for station in strStations.split(","):
-                lstFileNames.append("../Data/%s_%s_%04d-%02d-%02d.csv" % (args.site_id or config["monitor_id"],
-                                                                 station, Now.year,Now.month,Now.day))
+                lstFileNames.append("%s/%s_%s_%04d-%02d-%02d.csv" % 
+                                    (config.get("data_path", None) or "../Data",
+                                     args.site_id or config["monitor_id"],
+                                     station, Now.year,Now.month,Now.day))
             filenames = ",".join(lstFileNames)
     else:
         filenames = args.filename
-
+    
+    if args.verbose:
+        print("List of files:", filenames)
+        
     do_main(filenames, showPlot = args.showPlot, eMail=args.email or config.get("to_mail", None), pdf=args.pdffilename, web = args.webData, config=config)
 
 
