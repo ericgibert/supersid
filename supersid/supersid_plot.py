@@ -282,7 +282,7 @@ if __name__ == '__main__':
     parser.add_argument("-i", "--site_id", dest="site_id",
               help="Site ID to use in the file name", metavar="SITE_ID")
     parser.add_argument("-s", "--station", dest="station_id",
-              help="Station ID to use in the file name", metavar="STAID")
+              help="Station ID to use in the file name or * for all", metavar="STAID")
     parser.add_argument("-v", "--verbose",
               action="store_true", dest="verbose", default=False,
               help="Print more messages.")
@@ -295,6 +295,8 @@ if __name__ == '__main__':
             print(args.cfg_filename, "read as config file.")
             for k, v in config.items():
                 print(k, "=", v)
+            for s in config.stations:
+                print("Station:", s)
     else:
         config={}
     #print (config)
@@ -308,12 +310,23 @@ if __name__ == '__main__':
             # stations can be given as a comma delimited string
             # SuperSID id is unique
             lstFileNames = []
-            strStations = args.station_id or ",".join([s["call_sign"] for s in config.stations])
-            for station in strStations.split(","):
-                lstFileNames.append("%s/%s_%s_%04d-%02d-%02d.csv" % 
-                                    (config.get("data_path", None) or "../Data",
-                                     args.site_id or config["monitor_id"],
-                                     station, Now.year,Now.month,Now.day))
+            data_path = config.get("data_path", None) or "../Data"
+            if args.station_id is None:  # file name like supersid file format
+                lstFileNames.append("%s/%s_%04d-%02d-%02d.csv" % 
+                                    (data_path,
+                                     args.site_id or config["site_name"],
+                                     Now.year,Now.month,Now.day))
+            else:
+                if args.station_id == '*': # all possible stations from .cfg file 
+                    strStations = ",".join([s["call_sign"] for s in config.stations])
+                else: # only the given stations - can be a comma delimited list
+                    strStations = args.station_id
+                # build the list of sid format file names
+                for station in strStations.split(","):
+                    lstFileNames.append("%s/%s_%s_%04d-%02d-%02d.csv" % 
+                                        (data_path,
+                                         args.site_id or config["site_name"],
+                                         station, Now.year,Now.month,Now.day))
             filenames = ",".join(lstFileNames)
     else:
         filenames = args.filename
