@@ -317,7 +317,7 @@ if __name__ == '__main__':
                                      args.site_id or config["site_name"],
                                      Now.year,Now.month,Now.day))
             else:
-                if args.station_id == '*': # all possible stations from .cfg file 
+                if args.station_id == '*': # all possible stations from .cfg file - must be '*' on the command line!
                     strStations = ",".join([s["call_sign"] for s in config.stations])
                 else: # only the given stations - can be a comma delimited list
                     strStations = args.station_id
