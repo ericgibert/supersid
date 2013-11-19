@@ -46,7 +46,7 @@ class SidFile():
         Note: only one or the other parameter should be given. If both are given
         then 'filename' is taken and 'sid_params' is ignored.
         """
-        self.version = "1.3.1 20130907"
+        self.version = "1.3.1 20131118"
         self.filename = filename
         self.sid_params = sid_params    # dictionary of all header pairs
         self.is_extended = False
@@ -70,7 +70,9 @@ class SidFile():
             # create zeroes numpy arrays to receive data
             self.control_header()
             self.clear_buffer()
-
+    ##
+    ##  Read a SID File and control header's consistency
+    ##
     def clear_buffer(self, next_day=False):
         """creates zeroes numpy arrays to receive data and generates the timestamp vector"""
         if next_day:
@@ -115,7 +117,6 @@ class SidFile():
             self.sid_params["utc_starttime"] = "%d-%02d-%02d 00:00:00" % (utcnow.year, utcnow.month, utcnow.day)
         self.UTC_StartTime = self.sid_params["utc_starttime"]
         self.startTime = SidFile._StringToDatetime(self.sid_params["utc_starttime"])
-
 
     def read_header(self):
         """Reads the first lines of a SID file to extract the 'sid_params'.
@@ -183,7 +184,6 @@ class SidFile():
                 self.generate_timestamp()
         #print("self.data.shape =", self.data.shape)
 
-
     @classmethod
     def _StringToDatetime(cls, strTimestamp):
         if type(strTimestamp) is not str: # i.e. byte array in Python 3
@@ -205,7 +205,67 @@ class SidFile():
         for i in range(len(self.timestamp)):
             self.timestamp[i] =  currentTimestamp
             currentTimestamp += interval
+    ##
+    ##  Facilitator functions
+    ##
+    def get_sid_filename(self, station):
+        """Return a file name as <Site Name>_<Station>_<UTC Start Date>.csv like RASPI_NWC_2013-08-31.csv"""
+        site = self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site']
+        return "%s_%s_%s.csv" % (site, station, self.sid_params["utc_starttime"][:10])
 
+    def get_supersid_filename(self):
+        """Return a file name as <Site Name>__<UTC Start Date>.csv like RASPI_2013-08-31.csv"""
+        site = self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site']
+        return "%s_%s.csv" % (site, self.sid_params["utc_starttime"][:10])
+
+    def get_station_data(self, stationId):
+        """Return the numpy array of the given station's data"""
+        try:
+            idx = self.get_station_index(stationId)
+            return self.data[idx]
+        except ValueError:
+            return []
+
+        #if stationId not in self.stations:
+        #    return []
+        #elif self.isSuperSID:
+        #    idx = self.stations.index(stationId)
+        #    ###return self.data[:,idx]
+        #    return self.data[idx]
+        #else:
+        #    ###return self.data
+        #    return self.data[0]
+
+    def get_station_index(self, station):
+        """Returns the index of the station accordingly to the parameter station type"""
+        if type(station) is int:
+            assert( 0 <= station < len(self.stations) )
+            return  station
+        elif type(station) is str: # should be a station name/call_sign
+            return self.stations.index(station)  # throw a ValueError if 'station' is not in the list
+        elif type(station) is dict:
+            return self.stations.index(station['call_sign'])  # throw a ValueError if 'station' is not in the list
+        else:
+            return self.stations.index(station.call_sign)  # throw a ValueError if 'station' is not in the list
+
+    def copy_data(self, second_sidfile):
+        """Copy the second_sidfile's data on the current data vector for every common stations.
+           If a copy is done then the timestamps are also copied."""
+        has_copied = False
+        for iStation, station in enumerate(self.stations):
+            try:
+                second_idx = second_sidfile.get_station_index(station)
+                self.data[iStation] = second_sidfile.data[second_idx][:] # deep copy
+                has_copied = True
+            except ValueError:
+                # missing station in the second file
+                pass
+        if has_copied:
+            self.timestamp = second_sidfile.timestamp[:] # deep copy
+
+    ##
+    ##  Write a SID File
+    ##
     def create_header(self, isSuperSid, log_type):
         """ Create a string matching the SID/SuperSID file header.
         Ensure the same header on both formats.
@@ -232,40 +292,6 @@ class SidFile():
             hdr += "# StationID = %s\n" % self.sid_params['stationid']
             hdr += "# Frequency = %s\n" % self.sid_params['frequency']
         return hdr
-
-    def get_sid_filename(self, station):
-        """Return a file name as <Site Name>_<Station>_<UTC Start Date>.csv like RASPI_NWC_2013-08-31.csv"""
-        site = self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site']
-        return "%s_%s_%s.csv" % (site, station, self.sid_params["utc_starttime"][:10])
-
-    def get_supersid_filename(self):
-        """Return a file name as <Site Name>__<UTC Start Date>.csv like RASPI_2013-08-31.csv"""
-        site = self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site']
-        return "%s_%s.csv" % (site, self.sid_params["utc_starttime"][:10])
-
-    def get_station_data(self, stationId):
-        """Return the numpy array of the given station's data"""
-        if stationId not in self.stations:
-            return []
-        elif self.isSuperSID:
-            idx = self.stations.index(stationId)
-            ###return self.data[:,idx]
-            return self.data[idx]
-        else:
-            ###return self.data
-            return self.data[0]
-
-    def get_station_index(self, station):
-        """Returns the index of the station accordingly to the parameter station type"""
-        if type(station) is int:
-            assert( 0 <= station < len(self.stations) )
-            return  station
-        elif type(station) is str: # should be a station name/call_sign
-            return self.stations.index(station)  # throw a ValueError if 'station' is not in the list
-        elif type(station) is dict:
-            return self.stations.index(station['call_sign'])  # throw a ValueError if 'station' is not in the list
-        else:
-            return self.stations.index(station.call_sign)  # throw a ValueError if 'station' is not in the list
 
     def write_data_sid(self, station, filename, log_type, apply_bema = True, extended = False, bema_wing = 6):
         """Write in the file 'filename' the dataset of the given station using the SID format
@@ -356,14 +382,17 @@ class SidFile():
                 doffset = numpy.hstack((daverage[gmt_mark:length],daverage[0:gmt_mark]))
                 return doffset
 
-#-------------------------------------------------------------------------------
+##-------------------------------------------------------------------------------
+##  This module can be used alone as a utility to manipulate SID Files
+##  To see its options, execute at prompt level :   sidfile.py -h
+##
 if __name__ == '__main__':
     from os import path
     import argparse
 
     def exist_file(x):
         """
-        'Type' for argparse - checks that file exists but does not open.
+        'Type' for argparse - checks that file exists but does not open it
         """
         if not path.isfile(x):
             raise argparse.ArgumentError("{0} does not exist".format(x))
@@ -396,21 +425,23 @@ if __name__ == '__main__':
             print("Station:", sid.stations)
         print("Start Time:", sid.startTime)
         print("Number of TimeStamps:", len(sid.timestamp))
-        print("Dataset shape:", sid.data.shape)
+        # try to print 5 non zero records if found:
+        print("-" * 5, "Dataset shape:", sid.data.shape, "-" * 5)
         for i in range(len(sid.timestamp)):
             if sid.data[0][i] != 0.0: break
         if i == len(sid.timestamp): i = 0
         for t_stamp, row in zip(sid.timestamp[i:i+5], numpy.transpose(sid.data)[i:i+5]):
             floats_as_strings = ["%.15f" % x for x in row]
             print( t_stamp.strftime(sid.timestamp_format+","), ", ".join(floats_as_strings))
+        # print the whole dictionary
         print("-" * 5, "sid_params", "-" * 5)
         for key, value in sid.sid_params.items():
             print(" " * 5, key, "=", value)
-
+    # Some 'real' manipulations:
     elif args.filename_split:
+        # Explode this SuperSID file in one file per station in SID format
         sid = SidFile(args.filename_split, force_read_timestamp = True)
-        # explode this SuperSID file in one file per station in SID format
-        print("Proceed to split this SuperSID file in %d SID files? [y/N]" % sid.data.shape[0])
+        print("Proceed to split this SuperSID file in %d SID files:" % sid.data.shape[0])
         for station in sid.stations:
             fname = "%s/%s_%s_%s.split.csv" % (path.dirname(sid.filename),
                                          sid.sid_params['site'],
@@ -418,16 +449,14 @@ if __name__ == '__main__':
                                          sid.sid_params['utc_starttime'][:10])
             print(fname, "created.")
             sid.write_data_sid(station, fname, sid.sid_params['logtype'], apply_bema = False)
-
     elif args.filename_merge:
+        # Merge 2 SuperSID files station by station
         sid1, sid2 = SidFile(args.filename_merge[0]), SidFile(args.filename_merge[1])
-        # two SuperSID files to merge station by station
         if sid1.isSuperSID and sid2.isSuperSID:
             for istation in range(len(sid1.stations)):
                 sid1.data[:, istation] += sid2.get_station_data(sid1.stations[istation])
             sid1.write_data_supersid(fmerge(sid1.filename), apply_bema = False)
             print(fmerge(sid1.filename), "created.")
-
         # one SID file and one SuperSID file: merge the SuperSID's matching station to SID file
         elif sid1.isSuperSID != sid2.isSuperSID:
             if sid1.isSuperSID:
@@ -443,13 +472,14 @@ if __name__ == '__main__':
                 sid.data += supersid.get_station_data(station)
                 sid.write_data_sid(station, fmerge(sid.filename), sid.sid_params['logtype'], apply_bema = False)
                 print(fmerge(sid.filename), "created.")
-        # two SID files to merge in one SID file - sid1's header is kept
+        # 2 SID files to merge in one SID file - sid1's header is kept
         else:
             sid1.data += sid2.data
             sid1.write_data_sid(sid1.stations[0], fmerge(sid1.filename), sid1.sid_params['logtype'], apply_bema = False)
             print(fmerge(sid1.filename), "created.")
-
     elif args.filename_filter:
+        # Convert a RAW file into a Filtered one. Can filter an already filtered file too...
+        # optional parameter --bema_wing can be specified
         sid = SidFile(args.filename_filter, force_read_timestamp = True)
         fname = "%s.filtered%s" % path.splitext(args.filename_filter)
         if sid.sid_params['logtype'] != 'raw':
@@ -459,8 +489,5 @@ if __name__ == '__main__':
             sid.write_data_supersid(fname, log_type='filtered', apply_bema = True, extended = sid.is_extended, bema_wing=bema_wing)
         else:
             sid.write_data_sid(sid.stations[0], fname, log_type='filtered', apply_bema = True, extended = sid.is_extended, bema_wing=bema_wing)
-
     else:
         parser.print_help()
-
-
