@@ -115,6 +115,8 @@ class SidFile():
         if not keep_file_date or "utc_starttime" not in self.sid_params:
             utcnow = datetime.utcnow()
             self.sid_params["utc_starttime"] = "%d-%02d-%02d 00:00:00" % (utcnow.year, utcnow.month, utcnow.day)
+            if SidFile._timestamp_format == SidFile._TIMESTAMP_EXTENDED:
+                self.sid_params["utc_starttime"] += ".00000"
         self.UTC_StartTime = self.sid_params["utc_starttime"]
         self.startTime = SidFile._StringToDatetime(self.sid_params["utc_starttime"])
 
