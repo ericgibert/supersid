@@ -97,7 +97,10 @@ class wxSidViewer(wx.Frame):
         self.status_display(msg.data)
         
     def clear(self):
-        self.axes.cla()
+        try:
+            self.axes.cla()
+        except:
+            pass
         
     def get_axes(self):
         return self.axes
