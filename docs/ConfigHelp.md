@@ -1,4 +1,3 @@
-
 # File Naming Convention and Location #
 SuperSID uses the parameters set in the provided configuration file passed as argument on the command line. By convention, the file name is "supersid.cfg".
 It is possible to have more than one configuration file to launch the SuperSID application with different parameters. For example to specify different list of Stations to monitor or to choose between graphic or text mode interface (like 'supersid.text.cfg' and 'supersid.wx.cfg').
@@ -8,7 +7,7 @@ The file can be located in any accessible directory providing that the full qual
  2) In the local directory
  3) In the home directory '~/' (*nix system only)
  
- # File Organization #
+# File Organization #
 The configuration file is a simple text file formatted as a classic '.ini' structure i.e. sections with squared brackets and a list of pairs 'key=value"
  
  The supported sections are:
