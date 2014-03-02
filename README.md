@@ -22,7 +22,7 @@ This *SuperSID* project is a similar but simpler implementation on Linux whithou
 Other improvements
 ------------------
 
-Both Python 2 and 3 are supported. Note that currently only the *text* viewer can be used with Python 3 as wxPython is not ported to Python 3. A viewer for TkInter is under study.
+Both Python 2 and 3 are supported. Note that currently only the *text* viewer can be used with Python 3 as wxPython is [not *yet* ported to Python 3][Phoenix].
 
 supersid.py:
  - More options in the configuration file (.cfg)
@@ -37,3 +37,4 @@ supersid_plot.py:
  - Can send the graph as PDF by email
 
 [Standford]: http://solar-center.stanford.edu/SID/sidmonitor/
+[Phoenix]: http://wxpython.org/Phoenix/docs/html/index.html
