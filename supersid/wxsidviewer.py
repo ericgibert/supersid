@@ -93,8 +93,11 @@ class wxSidViewer(wx.Frame):
         """
         Receives data from thread and updates the display (graph and statusbar)
         """
-        self.canvas.draw()
-        self.status_display(msg.data)
+        try:
+            self.canvas.draw()
+            self.status_display(msg.data)
+        except:
+            pass
         
     def clear(self):
         try:

@@ -1,0 +1,4 @@
+lcd C:\Users\eric\Documents\supersid\Private\ToSend\Sending
+cd incoming/SuperSID
+mput *.csv
+quit
