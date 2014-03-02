@@ -29,25 +29,29 @@ This section groups most of the parameters identifying your SuperSID monitor. So
   * time_zone:
   
 ### Log Parameters ###
-  * audio_sampling_rate:
-  * log_interval:
-  * log_type: 'filtered' or 'raw'
-  * automatic_upload:
-  * data_path: 
+  * audio_sampling_rate: **48000** or **96000** (you can experiment with other value as long as your card support them)
+  * log_interval: number of second between two reading. Default is '**5**' seconds. Reading/sound capture last one second.
+  * log_type: **filtered** or **raw**. When **filtered** is indicated, *bema_wing* function is called to smoothen raw data before writting the file else in **raw** mode, captured data are written 'as is'. Note that *sidfile.py* can be used as an utility to apply 'bema_wing' function to an existing file (raw or not) to smoothen its data.
+  * data_path: fully qualified path where files will be written. If not mentionned then '../Data/' is used.
   * log_format:
-  * hourly_save:
+    - **sid_format**: one file per station with first data column as timestamp and second data column as captured value
+    - **supersid_format**: one file for all station. No timestamp but one data column per station. Each line is *log_interval* seconds after the previous, first line at 0:00:00UTC.
+    - **supersid_extended**: one file for all station. First data column is extended timestamp HH:MM:SS.mmmmm and following data column as one per station.
+  * hourly_save: **yes** / **no** (default). If **yes** then a raw file is written every hour to limit data loss.
   
+### FTP to Standford server ###
+  * automatic_upload:
   * ftp_server:
   * ftp_directory:
   
-  * number_of_stations:
-  * scaling_factor:
-  
 ### Extra ###
+  * scaling_factor:
   * mode: [ignored] **Server**, **Client**, **Standalone** (default) . Reserved for future client/server dev.
   * viewer: **text** for text mode light interface, **wx** for *wxPython* graphical interface (default)
-  * bema_wing: beta_wing parameter for sidfile.filter_buffer() calculation. Default is '6'.
-  
+  * bema_wing: beta_wing parameter for sidfile.filter_buffer() calculation. Default is '**6**'.
+
+  * number_of_stations: specify the number of stations to monitor. Each station is described within its own section.
+
 ## [STATION_x] ##
 Each station to monitor is enumerated from 1 till n=*number_of_stations*. For each station, one must provide:
   * call_sign:
