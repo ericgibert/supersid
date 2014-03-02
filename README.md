@@ -22,6 +22,8 @@ This *SuperSID* project is a similar but simpler implementation on Linux whithou
 Other improvements
 ------------------
 
+Both Python 2 and 3 are supported. Note that currently only the *text* viewer can be used with Python 3 as wxPython is not ported to Python 3. A viewer for TkInter is under study.
+
 supersid.py:
  - More options in the configuration file (.cfg)
  - Continue recording after interruption
