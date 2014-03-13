@@ -33,7 +33,7 @@ class SidFile():
     """
     _TIMESTAMP_STANDARD = "%Y-%m-%d %H:%M:%S"
     _TIMESTAMP_EXTENDED = "%Y-%m-%d %H:%M:%S.%f"
-    _timestamp_format = "%Y-%m-%d %H:%M:%S"
+    _timestamp_format = _TIMESTAMP_STANDARD  # conservative default
 
     def __init__(self, filename = "", sid_params = {}, force_read_timestamp = False):
         """Two ways to create a SIDfile:
@@ -63,6 +63,7 @@ class SidFile():
                 exit(1)
 
             self.read_header()
+            self.read_timestamp_format()
             self.control_header()
             self.read_data(force_read_timestamp)
 
@@ -135,13 +136,8 @@ class SidFile():
                 key = tokens[0][1:].strip().lower()
                 self.sid_params[key] = tokens[1].strip()
 
-    def read_data(self, force_read_timestamp = False):
-        """Using the self.lines buffer, converts the data lines in numpy arrays.
-            - One array self.data for the data (one column/vector per station)
-            - One array self.timestamp for the timestamps (i.e. timestamp vector)
-        Reading method differs accordingly to the self.isSuperSID flag
-        New: Extended format supports a timestamp for SuperSID format as well as .%f for second decimals
-        """
+    def read_timestamp_format(self):
+        """Check the timestamp found on the first line to deduce the timestamp format"""
         first_data_line = self.lines[self.headerNbLines].split(",")
         if ':' in first_data_line[0]: # yes, a time stamp is found in the first data column
             try:
@@ -154,6 +150,14 @@ class SidFile():
                 self.is_extended = False
                 SidFile._timestamp_format = SidFile._TIMESTAMP_STANDARD
                 self.timestamp_format = SidFile._TIMESTAMP_STANDARD
+
+    def read_data(self, force_read_timestamp = False):
+        """Using the self.lines buffer, converts the data lines in numpy arrays.
+            - One array self.data for the data (one column/vector per station)
+            - One array self.timestamp for the timestamps (i.e. timestamp vector)
+        Reading method differs accordingly to the self.isSuperSID flag
+        New: Extended format supports a timestamp for SuperSID format as well as .%f for second decimals
+        """
         # necessary to convert timestamp string (extended or not) to datetime AND decode byte array to string to float for python 3
         converters_dict = {0: SidFile._StringToDatetime }
         for i in range(len(self.stations)):
@@ -190,7 +194,14 @@ class SidFile():
     def _StringToDatetime(cls, strTimestamp):
         if type(strTimestamp) is not str: # i.e. byte array in Python 3
             strTimestamp = strTimestamp.decode('utf-8')
-        return datetime.strptime(strTimestamp, SidFile._timestamp_format)
+        try:
+            dts = datetime.strptime(strTimestamp, SidFile._timestamp_format)
+        except ValueError: # try the other format...
+            if SidFile._timestamp_format == SidFile._TIMESTAMP_STANDARD:
+                dts = datetime.strptime(strTimestamp, SidFile._TIMESTAMP_EXTENDED)
+            else:
+                dts = datetime.strptime(strTimestamp, SidFile._TIMESTAMP_STANDARD)
+        return dts
 
     @classmethod
     def _StringToFloat(cls, strNumber):
