@@ -25,14 +25,14 @@ Other improvements
 Both Python 2 and 3 are supported. Note that currently only the *text* viewer can be used with Python 3 as wxPython is [not *yet* ported to Python 3][Phoenix].
 
 supersid.py:
- - More options in the configuration file (.cfg)
+ - More options in the [configuration file (.cfg)] (docs/ConfigHelp.md)
  - Continue recording after interruption
- - auto adjustment of the interval period for better accuracy
+ - Auto adjustment of the interval period for better accuracy
  - New extended file format with time stamp to the 1.000th of second
- - sidfile.py can be used as a utility to manipualte SID files
+ - *sidfile.py* can be used as a utility to manipualte SID files
 
 supersid_plot.py:
- - Accepts multiple files to display up to 10 days in continue
+ - Accepts multiple files to display up to 10 days in continue (wildcards possible)
  - Can connect to NOAA to draw the day's events
  - Can send the graph as PDF by email
 
