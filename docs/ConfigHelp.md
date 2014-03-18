@@ -3,9 +3,9 @@ SuperSID uses the parameters set in the provided configuration file passed as ar
 It is possible to have more than one configuration file to launch the SuperSID application with different parameters. For example to specify different list of Stations to monitor or to choose between graphic or text mode interface (like 'supersid.text.cfg' and 'supersid.wx.cfg').
 
 The file can be located in any accessible directory providing that the full qualified path is given. On the other hand and for previous version compatibility, the configuration file argument can be omitted. In this case, the default "supersid.cfg" is searched:
- 1) In the '../Config/..' folder
- 2) In the local directory
- 3) In the home directory '~/' (*nix system only)
+  1. In the '../Config/..' folder
+  2. In the local directory
+  3. In the home directory '~/' (*nix system only)
  
 # File Organization #
 The configuration file is a simple text file formatted as a classic '.ini' structure i.e. sections with squared brackets and a list of pairs 'key=value"
@@ -54,9 +54,9 @@ This section groups most of the parameters identifying your SuperSID monitor. So
 
 ## [STATION_x] ##
 Each station to monitor is enumerated from 1 till n=*number_of_stations*. For each station, one must provide:
-  * call_sign:
-  * frequency:
-  * color:
+  * call_sign: Station ID (various VLF station lists exist. Here is [AAVSO's] (http://www.aavso.org/vlf-station-list) )
+  * frequency: emission frequency in Hz
+  * color: [rgbyw] to draw multiple graph together in *SuperSID_plot.py*.
   
 ## [Capture] ##
 This section can be omitted if you plan to use the 'pyaudio' library. If you want to use the "alsaaudio" library then you can declare:
