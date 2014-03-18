@@ -54,7 +54,7 @@ This section groups most of the parameters identifying your SuperSID monitor. So
 
 ## [STATION_x] ##
 Each station to monitor is enumerated from 1 till n=*number_of_stations*. For each station, one must provide:
-  * call_sign: Station ID (various VLF station lists exist. Here is [AAVSO's] (http://www.aavso.org/vlf-station-list) and [Wikipedia's] (http://en.wikipedia.org/wiki/Very_low_frequency#List_of_VLF_transmissions))
+  * call_sign: Station ID (various VLF station lists exist like [AAVSO's] (http://www.aavso.org/vlf-station-list) and [Wikipedia's] (http://en.wikipedia.org/wiki/Very_low_frequency#List_of_VLF_transmissions))
   * frequency: emission frequency in Hz
   * color: [rgbyw] to draw multiple graph together in *SuperSID_plot.py*.
   
