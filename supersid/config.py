@@ -152,7 +152,6 @@ class Config(dict):
         if 'stations' not in self:
             self['stations'] = ",".join([s['call_sign'] for s in self.stations])
             self['frequencies'] = ",".join([s['frequency'] for s in self.stations])
-            print (self['stations'])
 
         # log_type must be lower case and one of 'filtered' or 'raw'
         self['log_type'] = self['log_type'].lower()
