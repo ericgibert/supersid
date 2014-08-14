@@ -10,6 +10,7 @@
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python2
 import sys
+from os import path
 import glob
 import datetime
 from sidfile import SidFile
@@ -49,10 +50,11 @@ if __name__ == '__main__':
         year, month, day = yesterday.year, yesterday.month, yesterday.day
     else:
         input_file = sys.argv[1]
-        last_underscore = input_file.rindex("_")
-        year = int(input_file[last_underscore+1:last_underscore+5])
-        month = int(input_file[last_underscore+6:last_underscore+8])
-        day = int(input_file[last_underscore+9:last_underscore+11])
+        yyyy_mm_dd = path.basename(path.splitext(input_file)[0])[-10:]
+        year = int(yyyy_mm_dd[0:4])
+        month = int(yyyy_mm_dd[5:7])
+        day = int(yyyy_mm_dd[8:])
+        print(yyyy_mm_dd, year, month, day)
         
     sid = SidFile(input_file, force_read_timestamp = True)
                             
@@ -63,5 +65,6 @@ if __name__ == '__main__':
             sid.data[iStation] *= factor
         fname = "C:\\Users\\eric\\Documents\\supersid\\Private\\ToSend\\Sending\\%s_%s_%04d-%02d-%02d.csv" % \
                                             (SUPERSID_ID, station, year, month, day)
-        sid.write_data_sid(station, fname, sid.sid_params['logtype'], apply_bema = False)
+        # if the original file is filtered then we can save it "as is" els we ned to apply_bema i.e. filter it
+        sid.write_data_sid(station, fname, 'filtered', apply_bema = sid.sid_params['logtype'] == 'raw')
 
