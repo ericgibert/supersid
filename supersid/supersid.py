@@ -46,7 +46,7 @@ class SuperSID():
     '''
     running = False  # class attribute to indicate if the SID application is running
 
-    def __init__(self, config_file='', read_file=''):
+    def __init__(self, config_file='', read_file=None):
         self.version = "1.3.1 20130907"
         self.timer = None
         self.sampler = None

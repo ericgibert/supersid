@@ -16,6 +16,8 @@ from datetime import datetime, timedelta
 import numpy
 from matplotlib.mlab import movavg
 
+from config import FILTERED, RAW
+
 USAGE = """
 Provide some utilities to manipulate SID/SuperSID files:
     - When one file is given as argument:
@@ -283,7 +285,7 @@ class SidFile():
         """ Create a string matching the SID/SuperSID file header.
         Ensure the same header on both formats.
         - isSuperSid: request a SuperSid header if True else a SID header
-        - log_type: must be 'raw' or 'filtered'
+        - log_type: must be 'raw' or 'filtered' as in RAW/FILTERED
         """
         hdr = "# Site = %s\n" % (self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site'])
         if 'contact' in self.sid_params:
@@ -317,8 +319,8 @@ class SidFile():
             self.sid_params['stationid'] = self.stations[iStation]
             self.sid_params['frequency'] = self.frequencies[iStation]
 
-        # intermediate buffer to have 'raw' or 'filtered' data
-        if log_type == 'raw' or apply_bema == False:
+        # intermediate buffer to have 'raw' or 'filtered' data ( as in RAW/FILTERED)
+        if log_type == RAW or apply_bema == False:
             tmp_data = self.data[iStation]
         else: # filtered
             tmp_data = SidFile.filter_buffer(self.data[iStation], self.LogInterval, bema_wing = bema_wing)
@@ -339,8 +341,8 @@ class SidFile():
         # create file and write header
         with open(filename, "wt") as fout:
             print(hdr, file=fout, end="")
-            # intermediate buffer to have 'raw' or 'filtered' data
-            if log_type == 'raw' or apply_bema == False:
+            # intermediate buffer to have 'raw' or 'filtered' data (as in  as in RAW/FILTERED)
+            if log_type == RAW or apply_bema == False:
                 tmp_data = self.data
             else: # filtered
                 tmp_data = []
@@ -495,12 +497,12 @@ if __name__ == '__main__':
         # optional parameter --bema_wing can be specified
         sid = SidFile(args.filename_filter, force_read_timestamp = True)
         fname = "%s.filtered%s" % path.splitext(args.filename_filter)
-        if sid.sid_params['logtype'] != 'raw':
+        if sid.sid_params['logtype'] != RAW:
             print("Warning: %s is not a raw file. This might filter an already filtered file." % args.filename_filter)
         bema_wing = args.bema_wing if args.bema_wing else 6
         if sid.isSuperSID:
-            sid.write_data_supersid(fname, log_type='filtered', apply_bema = True, extended = sid.is_extended, bema_wing=bema_wing)
+            sid.write_data_supersid(fname, log_type=FILTERED, apply_bema = True, extended = sid.is_extended, bema_wing=bema_wing)
         else:
-            sid.write_data_sid(sid.stations[0], fname, log_type='filtered', apply_bema = True, extended = sid.is_extended, bema_wing=bema_wing)
+            sid.write_data_sid(sid.stations[0], fname, log_type=FILTERED, apply_bema = True, extended = sid.is_extended, bema_wing=bema_wing)
     else:
         parser.print_help()

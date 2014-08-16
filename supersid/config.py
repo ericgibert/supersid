@@ -7,6 +7,13 @@ Parameter access: all keys are forced to lowercase
 
 Note: len(config.stations) == config['number_of_stations'] - sanity check -
 """
+#
+# Eric Gibert
+#
+#   Change Log:
+#   20140816:
+#   - define CONSTANTS to ensure universal usage
+#
 from __future__ import print_function   # use the new Python 3 'print' function
 import os.path
 try:
@@ -14,13 +21,26 @@ try:
 except ImportError:
     import configparser as ConfigParser
 
-class Config(dict):
+# constant for log_type
+FILTERED, RAW = 'filtered', 'raw'
+# constant for station parameters
+CALL_SIGN, FREQUENCY, COLOR = 'call_sign', 'frequency', 'color'
+# constant for log_format
+SID_FORMAT, SUPERSID_FORMAT = 'sid_format', 'supersid_format'
+SUPERSID_EXTENDED, BOTH_EXTENDED = 'supersid_extended', 'both_extended' # with 5 decimals timestamp
 
+class Config(dict):
+    """Dictionary containing the key/values pair read from a .ini file"""
     CONFIG_PATH_NAME = "../Config/" # default for historical reasons
     DATA_PATH_NAME   = "../Data/"   # default for historical reasons - can be overwritten by 'data_path'
-    
+
     def __init__(self, filename="supersid.cfg"):
-        self.version = "1.3.1 20130817"
+        """Read the given .cfg file (formatted as a .ini windows file) or tries to find one.
+           All its key/values pairs are stored as a dictionary (self)
+        :param filename: superSID .cfg file
+        :return: nothing
+        """
+        self.version = "1.3.1 20140816"
         dict.__init__(self)         # Config objects are dictionaries
         self.config_ok = True       # Parsing success/failure
         self.config_err = ""        # Parsing failure error message
@@ -44,7 +64,7 @@ class Config(dict):
                                     ('contact', str, ""),               # email of the SuperSID owner
                                     ('hourly_save', str, "no"),         # new flag: yes/no to save every hours
                                     ('data_path', str, ""),             # new: to override DATA_PATH_NAME by user
-                                    ('log_format', str, 'sid_format'),  # sid_format (default), supersid_format
+                                    ('log_format', str, SID_FORMAT),    # sid_format (default), supersid_format
                                     ('mode', str, 'Standalone'),        # Server, Client, Standalone (default)
                                     ('viewer', str, 'wx'),              # text, wx (default)
                                     ('bema_wing', int, 6),              # beta_wing for sidfile.filter_buffer()
@@ -68,12 +88,12 @@ class Config(dict):
 
                       "Capture":   (("Audio", str, 'pyaudio'),          # soundcard: alsaaudio or pyaudio ; server
                                     ("Card", str, 'External'),          # alsaaudio: card name for capture
-                                    ("PeriodSize", int, 128)            # alsaaudio: period sizefor capture
+                                    ("PeriodSize", int, 128)            # alsaaudio: period size for capture
                                     ),
 
                       "Linux":     (("Audio", str, 'pyaudio'),          # soundcard: alsaaudio or pyaudio ; server
                                     ("Card", str, 'External'),          # alsaaudio: card name for capture
-                                    ("PeriodSize", int, 128)            # alsaaudio: period sizefor capture
+                                    ("PeriodSize", int, 128)            # alsaaudio: period size for capture
                                     ),
 
                       "Email":     (("from_mail", str, ""),             # sender email
@@ -117,7 +137,7 @@ class Config(dict):
             section = "STATION_" + str(i+1)
             tmpDict = {}
             try:
-                for parameter in ('call_sign', 'frequency', 'color'):
+                for parameter in (CALL_SIGN, FREQUENCY, COLOR):
                     tmpDict[parameter] = config_parser.get(section, parameter)
                 self.stations.append(tmpDict)
             except ConfigParser.NoSectionError:
@@ -150,12 +170,12 @@ class Config(dict):
             return
 
         if 'stations' not in self:
-            self['stations'] = ",".join([s['call_sign'] for s in self.stations])
-            self['frequencies'] = ",".join([s['frequency'] for s in self.stations])
+            self[CALL_SIGN] = ",".join([s[CALL_SIGN] for s in self.stations])
+            self[FREQUENCY] = ",".join([s[FREQUENCY] for s in self.stations])
 
         # log_type must be lower case and one of 'filtered' or 'raw'
         self['log_type'] = self['log_type'].lower()
-        if self['log_type'] not in ('filtered', 'raw'):
+        if self['log_type'] not in (FILTERED, RAW):
             self.config_ok = False
             self.config_err = "'log_type' must be either 'filtered' or 'raw' in supersid.cfg. Please check."
             return
@@ -175,7 +195,7 @@ class Config(dict):
         
         # check log_format
         self['log_format'] = self['log_format'].lower()
-        if self['log_format'] not in ('sid_format','supersid_format', 'supersid_extended'):
+        if self['log_format'] not in (SID_FORMAT,SUPERSID_FORMAT, SUPERSID_EXTENDED, BOTH_EXTENDED):
             self.config_ok = False
             self.config_err = "'log_format' must be either 'sid_format' or 'supersid_format'/'supersid_extended'."
             return     

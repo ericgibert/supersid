@@ -18,7 +18,7 @@ Program is tested on both Fedora 16 on Desktop PC and Debian Wheezy on **Raspber
 
 ````
  # yum/apt-get install matplotlib
- # yum/apt-get install python-matplotlib
+ # yum/apt-get install python-matplotlib   or yum/apt-get install python3-matplotlib
 ````
 
 ## Sound Card Configuration ##
@@ -27,7 +27,14 @@ This is really the tricky part as sound capture on Linux is rather complex. The 
 After various unsuccessful attempts to run SuperSID with PyAudio, I decided to switch to another library which directly captures sound at ALSA level: **alsaaudio**.  
 
 ````
+Python 2:
  # yum/apt-get install python-alsaaudio
+
+Python 3:
+ - yum install 'pkgconfig(alsa)'
+ - go to http://sourceforge.net/projects/pyalsaaudio/files/
+ - download and unpack the latest pyalsaaudio-___.tar.gz
+ - python3 setup.py install
 ````
 
 ## Specific `supersid.cfg` Entry ##

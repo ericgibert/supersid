@@ -28,14 +28,14 @@ try:
     
     class alsaaudio_soundcard():
         def __init__(self, card, periodsize, audio_sampling_rate):
-            FORMAT = alsaaudio.PCM_FORMAT_S16_LE
+            self.FORMAT = alsaaudio.PCM_FORMAT_S16_LE
             self.audio_sampling_rate = audio_sampling_rate
             card = 'sysdefault:CARD=' + card  # to add in the .cfg file under [Linux] section
             self.inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, card)
             self.inp.setchannels(1)
             self.inp.setrate(audio_sampling_rate)
             self.inp.setperiodsize(periodsize)
-            self.inp.setformat(FORMAT)
+            self.inp.setformat(self.FORMAT)
             self.name = "alsaaudio sound card capture on " + card
     
         def capture_1sec(self):
@@ -61,15 +61,6 @@ try:
             self.CHUNK = 1024
             self.pa_lib = pyaudio.PyAudio()
             self.audio_sampling_rate = audio_sampling_rate
-            
-            #for i in range(self.pa_lib.get_device_count()):
-            #    print(i, ":", self.pa_lib.get_device_info_by_index(i))
-            #print("d :", self.pa_lib.get_default_input_device_info())
-            #defaultCapability = self.pa_lib.get_default_host_api_info()
-            #print ("defaultCapability", defaultCapability)
-            #isSupported = self.pa_lib.is_format_supported(input_format=self.FORMAT, input_channels=1,
-            #                                           rate=self.audio_sampling_rate, input_device=0)
-            #print ("isSupported", isSupported)
 
             self.pa_stream = self.pa_lib.open(format = self.FORMAT,
                                           channels = 1,
@@ -100,6 +91,16 @@ try:
             self.pa_stream.stop_stream()
             self.pa_stream.close()
             self.pa_lib.terminate()
+
+        def debug(self):
+            for i in range(self.pa_lib.get_device_count()):
+                print(i, ":", self.pa_lib.get_device_info_by_index(i))
+            print("default device :", self.pa_lib.get_default_input_device_info())
+            default_capability = self.pa_lib.get_default_host_api_info()
+            print("default device Capability", default_capability)
+            is_supported = self.pa_lib.is_format_supported(input_format=self.FORMAT, input_channels=1,
+                                                       rate=self.audio_sampling_rate, input_device=0)
+            print("expected format is supported?", is_supported)
             
 except ImportError:
     pass
@@ -108,7 +109,7 @@ except ImportError:
 class Sampler():
     """Sampler will gather sound capture from various devices: sound cards or remote server"""
     def __init__(self, controller, audio_sampling_rate = 96000, NFFT = 1024):
-        self.version = "1.3.1 20130721"
+        self.version = "1.3.1 20140816"
         self.controller = controller
         self.scaling_factor = controller.config['scaling_factor']
         
@@ -161,3 +162,5 @@ class Sampler():
         msg = "From Sampler object instance:\n" + message + ". Please check.\n"
         self.controller.viewer.status_display(msg)            
         
+if __name__ == '__main__':
+    print('Possible capture modules:', audioModule)

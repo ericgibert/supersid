@@ -12,7 +12,9 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import wx
 from wx.lib.pubsub import Publisher
+
 import supersid_plot as SSP
+from config import FILTERED, RAW
 
 
 class wxSidViewer(wx.Frame):
@@ -158,11 +160,11 @@ class wxSidViewer(wx.Frame):
         
     def on_save_buffers(self, event):
         """Call the Controller for writing unfiltered/raw data to file"""
-        self.controller.save_current_buffers(log_type='raw')
+        self.controller.save_current_buffers(log_type=RAW)
     
     def on_save_filtered(self, event):
         """Call the Controller for writing filtered data to file"""
-        self.controller.save_current_buffers('current_filtered.csv', 'filtered')
+        self.controller.save_current_buffers('current_filtered.csv', FILTERED)
         
     def on_about(self, event):    
         description = """This program is designed to detect Sudden Ionosphere Disturbances (SID), \

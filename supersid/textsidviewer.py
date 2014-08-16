@@ -8,6 +8,8 @@ import sys
 from threading import Timer
 from _getch import _Getch
 
+from config import FILTERED, RAW
+
 class textSidViewer:
     def __init__(self, controller):
         self.version = "1.3.1 20130803"
@@ -51,7 +53,7 @@ class textSidViewer:
             self.controller.close()
         elif s in ('f', 'r', 'e'):
             print ("\n\n")
-            for fname in self.controller.save_current_buffers(log_type = 'filtered' if s=='f' else 'raw',
+            for fname in self.controller.save_current_buffers(log_type = FILTERED if s=='f' else RAW,
                                                               log_format = 'both_extended' if s == 'e' else 'both'):
                 print (fname, "saved")
             self.print_menu()
