@@ -33,7 +33,7 @@ except ImportError:
     from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
-from email import encoders
+from email import encoders, utils
 import argparse
 # SuperSID modules
 from sidfile import SidFile
@@ -56,6 +56,7 @@ def sendMail(config, To_mail, msgBody, PDFfile):
     msg['From'] = senderEmail
     msg['Reply-to'] = senderEmail
     msg['To'] = To_mail
+    msg['Date'] = utils.formatdate(localtime = 1)
 
     # attach the PDF file
     ctype, encoding = ('application/pdf', None)
