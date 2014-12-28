@@ -158,41 +158,46 @@ class SUPERSID_PLOT():
                     # get the XRA data from NOAA website to draw corresponding lines on the plot
                     # fetch that day's flares on NOAA as not previously accessed
                     day = sFile.sid_params["utc_starttime"][:10].replace("-","")
-                    NOAA_URL = 'http://www.swpc.noaa.gov/ftpdir/warehouse/%s/%s_events/%sevents.txt' % (day[:4], day[:4], day)
+                    #NOAA_URL = 'http://www.swpc.noaa.gov/ftpdir/warehouse/%s/%s_events/%sevents.txt' % (day[:4], day[:4], day)
+                    #ftp://ftp.swpc.noaa.gov/pub/indices/events/20141030events.txt
+                    NOAA_URL = 'ftp://ftp.swpc.noaa.gov/pub/indices/events/%sevents.txt' % (day)
                     if sys.version[0]<'3':  # python 2.7 vs. Python 3.3
                         try:
                             response = urllib2.urlopen(NOAA_URL)
                         except urllib2.HTTPError as err:
+                            response = None
                             print (err,"\n",NOAA_URL)
                     else:
                         try:
                             response = urllib.request.urlopen(NOAA_URL)
                         except urllib.error.HTTPError as err:
+                            response = None
                             print (err,"\n",NOAA_URL)
                     lastXRAlen = len(XRAlist) # save temporarly current number of XRA events in memory
-                    for webline in response.read().splitlines():
-                        if sys.version[0]>='3': webline = str(webline, 'utf-8') # Python 3: cast bytes to str
-                        fields = webline.split()
-                        if len(fields) >= 9 and not fields[0].startswith("#"):
-                            if fields[1] == '+': fields.remove('+')
-                            if fields[6] in ('XRA', ):  # maybe other event types could be of interrest
-                                #     eventName,    BeginTime,    MaxTime,      EndTime,      Particulars
-                                msg = fields[0]+" "+fields[1]+" "+fields[2]+" "+fields[3]+" "+fields[8]
-                                emailText.append(msg)
-                                print (msg)
-                                try:
-                                    btime = Tstamp(fields[1])   # 'try' necessary as few occurences of --:-- instead of HH:MM exist
-                                except:
-                                    pass
-                                try:
-                                    mtime = Tstamp(fields[2])
-                                except:
-                                    mtime = btime
-                                try:
-                                    etime = Tstamp(fields[3])
-                                except:
-                                    etime = mtime
-                                XRAlist.append( (fields[0], btime, mtime, etime, fields[8]) )  # as a tuple
+                    if response:
+                        for webline in response.read().splitlines():
+                            if sys.version[0]>='3': webline = str(webline, 'utf-8') # Python 3: cast bytes to str
+                            fields = webline.split()
+                            if len(fields) >= 9 and not fields[0].startswith("#"):
+                                if fields[1] == '+': fields.remove('+')
+                                if fields[6] in ('XRA', ):  # maybe other event types could be of interrest
+                                    #     eventName,    BeginTime,    MaxTime,      EndTime,      Particulars
+                                    msg = fields[0]+" "+fields[1]+" "+fields[2]+" "+fields[3]+" "+fields[8]
+                                    emailText.append(msg)
+                                    print (msg)
+                                    try:
+                                        btime = Tstamp(fields[1])   # 'try' necessary as few occurences of --:-- instead of HH:MM exist
+                                    except:
+                                        pass
+                                    try:
+                                        mtime = Tstamp(fields[2])
+                                    except:
+                                        mtime = btime
+                                    try:
+                                        etime = Tstamp(fields[3])
+                                    except:
+                                        etime = mtime
+                                    XRAlist.append( (fields[0], btime, mtime, etime, fields[8]) )  # as a tuple
 
                     msg = str(len(XRAlist) - lastXRAlen) + " XRA events recorded by NOAA on " + day
                     emailText.append(msg)
