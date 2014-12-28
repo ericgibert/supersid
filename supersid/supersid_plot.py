@@ -161,17 +161,16 @@ class SUPERSID_PLOT():
                     #NOAA_URL = 'http://www.swpc.noaa.gov/ftpdir/warehouse/%s/%s_events/%sevents.txt' % (day[:4], day[:4], day)
                     #ftp://ftp.swpc.noaa.gov/pub/indices/events/20141030events.txt
                     NOAA_URL = 'ftp://ftp.swpc.noaa.gov/pub/indices/events/%sevents.txt' % (day)
+                    response = None
                     if sys.version[0]<'3':  # python 2.7 vs. Python 3.3
                         try:
                             response = urllib2.urlopen(NOAA_URL)
-                        except urllib2.HTTPError as err:
-                            response = None
+                        except urllib2.HTTPError as err:                            
                             print (err,"\n",NOAA_URL)
                     else:
                         try:
                             response = urllib.request.urlopen(NOAA_URL)
-                        except urllib.error.HTTPError as err:
-                            response = None
+                        except urllib.error.HTTPError as err:                            
                             print (err,"\n",NOAA_URL)
                     lastXRAlen = len(XRAlist) # save temporarly current number of XRA events in memory
                     if response:
