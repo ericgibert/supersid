@@ -150,7 +150,8 @@ class SUPERSID_PLOT():
                 plt.plot_date(sFile.timestamp, sFile.get_station_data(station), colorStation[station])
                 # Extra housekeeping
                 maxData = max(max(sFile.get_station_data(station)), maxData)  # maxData will be used later to put the XRA labels up
-                msg = str(len(sFile.get_station_data(station))) + " points plotted after reading " + os.path.basename(filename)
+                #msg = str(len(sFile.get_station_data(station))) + " points plotted after reading " + os.path.basename(filename)
+                msg = "[{}] {} points plotted after reading {}".format(station, len(sFile.get_station_data(station)), os.path.basename(filename))
                 print (msg)
                 emailText.append(msg)
 
