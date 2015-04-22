@@ -17,10 +17,10 @@
 """
 from __future__ import print_function   # use the new Python 3 'print' function
 import os.path
+import argparse
+
 # matplotlib ONLY used in Controller for its PSD function, not for any graphic
 from matplotlib.mlab import psd as mlab_psd
-from time import sleep
-import argparse
 
 # SuperSID Package classes
 from sidtimer import SidTimer
@@ -28,16 +28,16 @@ from sampler import Sampler
 from config import Config
 from logger import Logger
 from textsidviewer import textSidViewer
-
+from tksidviewer import tkSidViewer
 # special case: 'wx' module might not be installed (text mode only) or even available (python 3)
 try:
-    # wx.App() object is necessary in Controller to run the event loop, not for any graphic
-    from wx import App
     from wxsidviewer import wxSidViewer
     wx_imported = True
 except ImportError:
     print("'wx' module not imported. Text mode only.")
     wx_imported = False
+
+
 
 class SuperSID():
     '''
@@ -47,7 +47,7 @@ class SuperSID():
     running = False  # class attribute to indicate if the SID application is running
 
     def __init__(self, config_file='', read_file=None):
-        self.version = "1.3.1 20130907"
+        self.version = "1.3.1 20150421"
         self.timer = None
         self.sampler = None
         self.viewer = None
@@ -72,10 +72,14 @@ class SuperSID():
 
         # Create the viewer based on the .cfg specification (or set default):
         # Note: the list of Viewers can be extended provided they implement the same interface
-        if self.config['viewer'] == 'wx':       # GUI Frame to display real-time VLF Spectrum based on wxPython
+        if self.config['viewer'] == 'wx' and wx_imported:
+            # GUI Frame to display real-time VLF Spectrum based on wxPython
             self.viewer = wxSidViewer(self)
-            self.viewer.Show()
-        elif self.config['viewer'] == 'text':   # Lighter text version a.k.a. "console mode"
+        elif self.config['viewer'] == 'tk' and wx_imported:
+            # GUI Frame to display real-time VLF Spectrum based on tkinter (python 2 and 3)
+            self.viewer = tkSidViewer(self)
+        elif self.config['viewer'] == 'text':
+            # Lighter text version a.k.a. "console mode"
             self.viewer = textSidViewer(self)
         else:
             print("ERROR: Unknown viewer", sid.config['viewer'])
@@ -83,7 +87,7 @@ class SuperSID():
 
         # Assign desired psd function for calculation after capture
         # currently: using matplotlib's psd
-        if self.config['viewer'] == 'wx':
+        if (self.config['viewer'] == 'wx' and wx_imported) or self.config['viewer'] == 'tk':
             self.psd = self.viewer.get_psd  # calculate psd and draw result in one call
         else:
             self.psd = mlab_psd             # calculation only
@@ -178,25 +182,17 @@ class SuperSID():
     def run(self, wx_app = None):
         """Start the application as infinite loop accordingly to need"""
         self.__class__.running = True
-        if self.config['viewer'] == 'wx':
-            wx_app.MainLoop()
-        elif self.config['viewer'] == 'text':
-            try:
-                while(self.__class__.running):
-                    sleep(1)
-            except (KeyboardInterrupt, SystemExit):
-                pass
-
+        self.viewer.run()
 
     def close(self):
         """Call all necessary stop/close functions of children objects"""
+        self.__class__.running = False
         if self.sampler:
             self.sampler.close()
         if self.timer:
             self.timer.stop()
         if self.viewer:
             self.viewer.close()
-        self.__class__.running = False
 
 
 #-------------------------------------------------------------------------------
@@ -215,11 +211,9 @@ if __name__ == '__main__':
     parser.add_argument('config_file', nargs='?', default='')
     args, unk = parser.parse_known_args()
 
-    # wx application - mandatory for viewer = 'wx', ignored for other viewer
-    wx_app = App(redirect=False) if wx_imported else None
     sid = SuperSID(config_file=args.config_file, read_file=args.filename)
-    sid.run(wx_app=wx_app)
+    sid.run()
     sid.close()
-    if wx_app: wx_app.Exit()
+
 
 

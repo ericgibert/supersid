@@ -3,11 +3,17 @@ wxSidViewer class implements a graphical user interface for SID based on wxPytho
 
 About Threads and wxPython http://www.blog.pythonlibrary.org/2010/05/22/wxpython-and-threads/
 
+Each Viewer must implement:
+- __init__(): all initializations
+- run(): main loop to get user input
+- close(): cleaning up
+
+- clear(): clear the screen/display
+- status_display(): display a message in a status bar or equivalent
 """
 from __future__ import print_function
 import matplotlib
-matplotlib.use('WXAgg') # select back-end before pylab
-# FigureCanvas and Figure are the things of matplotlib (not wx)
+#matplotlib.use('WXAgg') # select back-end before pylab
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import wx
@@ -28,7 +34,11 @@ class wxSidViewer(wx.Frame):
         """SuperSID Viewer using wxPython GUI for standalone and client.
         Creation of the Frame with menu and graph display using matplotlib
         """
-        self.version = "1.3.1 20130817"
+        matplotlib.use('WXAgg') # select back-end before pylab
+        # the application MUST created first
+        self.app = wx.App(redirect=False)
+        #
+        self.version = "1.3.1 20150421"
         self.controller = controller  # previously referred as 'parent'      
         # Frame
         wx.Frame.__init__(self, None, -1, "supersid @ " + self.controller.config['site_name'], pos = (20, 20), size=(1000,400))     
@@ -86,10 +96,15 @@ class wxSidViewer(wx.Frame):
         self.SetMinSize((600,600))
         psd_sizer.SetItemMinSize(psd_panel,1000,600)
         self.Center(True)
+        self.Show()
 
         # create a pubsub receiver for refresh after data capture / ref. link on threads
         Publisher().subscribe(self.updateDisplay, "update")
-        
+
+
+    def run(self):
+        """Main loop for the application"""
+        self.app.MainLoop()
         
     def updateDisplay(self, msg):
         """
@@ -124,6 +139,7 @@ class wxSidViewer(wx.Frame):
 
     def close(self):
         """Requested to close by the controller"""
+        self.app.Exit()
         self.Destroy()
 
     def on_exit(self, event):
@@ -216,5 +232,3 @@ which are caused by a blast of intense X-ray radiation when there is a Solar Fla
         except wx.PyDeadObjectError:
             exit(3)
         return Pxx, freqs
-
-        

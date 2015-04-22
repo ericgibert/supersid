@@ -2,17 +2,27 @@
 
 Minimal output for SuperSID in text mode i.e. within terminal window.
 Useful for Server mode
+
+Each Viewer must implement:
+- __init__(): all initializations
+- run(): main loop to get user input
+- close(): cleaning up
+
+- clear(): clear the screen/display
+- status_display(): display a message in a status bar or equivalent
+
 """
 from __future__ import print_function   # use the new Python 3 'print' function
 import sys
 from threading import Timer
+from time import sleep
 from _getch import _Getch
 
 from config import FILTERED, RAW
 
 class textSidViewer:
     def __init__(self, controller):
-        self.version = "1.3.1 20130803"
+        self.version = "1.3.1 20150421"
         print ("SuperSID initialization")
         self.controller = controller
         self.getch = _Getch()
@@ -20,6 +30,14 @@ class textSidViewer:
         self.print_menu()
         self.timer = Timer(0.5, self.check_keyboard)
         self.timer.start()
+
+    def run(self):
+        """main loop waiting for keyboard interrupt i.e. do nothing until user press 'X' or CTRL-C"""
+        try:
+            while(self.controller.__class__.running):
+                sleep(1)
+        except (KeyboardInterrupt, SystemExit):
+                pass
 
 
     def status_display(self, msg, level = 0):
