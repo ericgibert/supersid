@@ -34,7 +34,7 @@ try:
     from wxsidviewer import wxSidViewer
     wx_imported = True
 except ImportError:
-    print("'wx' module not imported. Text mode only.")
+    print("'wx' module not imported.")
     wx_imported = False
 
 
@@ -75,7 +75,7 @@ class SuperSID():
         if self.config['viewer'] == 'wx' and wx_imported:
             # GUI Frame to display real-time VLF Spectrum based on wxPython
             self.viewer = wxSidViewer(self)
-        elif self.config['viewer'] == 'tk' and wx_imported:
+        elif self.config['viewer'] == 'tk':
             # GUI Frame to display real-time VLF Spectrum based on tkinter (python 2 and 3)
             self.viewer = tkSidViewer(self)
         elif self.config['viewer'] == 'text':

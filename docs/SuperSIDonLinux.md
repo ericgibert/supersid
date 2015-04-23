@@ -52,7 +52,7 @@ PeriodSize=128
 Specify which sound card to use. To know which sound card are recognized on your Linux box uses:  
 
 ````
-> `ls -l /proc/asound/  
+> ls -l /proc/asound/  
 sss    
 ddd
 

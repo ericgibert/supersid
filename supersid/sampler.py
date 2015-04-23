@@ -47,6 +47,10 @@ try:
         
         def close(self):
             pass  # to check later if there is something to do
+
+        def info(self):
+            print(self.name, "at", self.audio_sampling_rate,"Hz")
+
         
 except ImportError:
     pass
@@ -92,7 +96,7 @@ try:
             self.pa_stream.close()
             self.pa_lib.terminate()
 
-        def debug(self):
+        def info(self):
             for i in range(self.pa_lib.get_device_count()):
                 print(i, ":", self.pa_lib.get_device_info_by_index(i))
             print("default device :", self.pa_lib.get_default_input_device_info())
@@ -164,3 +168,12 @@ class Sampler():
         
 if __name__ == '__main__':
     print('Possible capture modules:', audioModule)
+
+    if 'alsaaudio' in audioModule:
+        for card in alsaaudio.cards():
+            sc = alsaaudio_soundcard(card, 1024, 48000)
+            sc.info()
+
+    if 'pyaudio' in audioModule:
+        sc = pyaudio_soundcard(48000)
+        sc.info()

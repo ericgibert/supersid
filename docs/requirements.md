@@ -15,6 +15,10 @@ For *Fedora 18*:
  * wxPython:````sudo yum install wxPython````
  * matplotlib: ````sudo yum install python-matplotlib-wx```` (this will install *numpy* too)
 
+For *Fedora 20* and *Python 3*
+ * matplotlib with tkinter: ````sudo yum install python3-matplotlib-tk````
+ (do not forget to set viewer=tk in the 'supersid.cfg' file)
+
 
 For all distro:
  * alsa tools:	````sudo yum/apt-get install alsa-utils````
@@ -31,7 +35,7 @@ After various unsuccessful attempts to run SuperSID with *PyAudio*, I decided to
 
  - alsaaudio: ``# yum/apt-get install python-alsaaudio``
 
-Note: it is not necessary to install *PyAudio* on Linux.
+Note: it is not necessary to install *PyAudio* on Linux. Refer to docs/SuperSIDonLinux.md to install 'alsaaudio' on Python3.
 
 -----
 
