@@ -29,7 +29,7 @@ class tkSidViewer(tk.Frame):
         self.version = "1.3.1 20130817"
         self.controller = controller  # previously referred as 'parent'
         self.tk_root = tk.Tk()
-        tk.Frame.__init__(self, self.tk_root, background="white")
+        tk.Frame.__init__(self, parent=None, background="white")
         self.tk_root.title("supersid @ " + self.controller.config['site_name'])
 
         # All Menus creation
@@ -63,34 +63,23 @@ class tkSidViewer(tk.Frame):
         # Default View
 
     def run(self):
-        self.tk_root.mainloop()
+        self.mainloop()
 
     def close(self):
-        self.tk_root.quit()
+        self.quit()
 
 
     def clear(self):
-        try:
-            self.axes.cla()
-        except:
-            pass
+        self.axes.cla()
+        pass
+
 
     def status_display(self, message, level=0, field=0):
         """update the main frame by changing the message in status bar"""
         print(message)
-        try:
-            self.canvas.draw()
-            self.statusbar_txt.set(message)
-            self.tk_root.update()
-        except:
-            pass
-
+        self.statusbar_txt.set(message)
 
     def get_psd(self, data, NFFT, FS):
         """By calling 'psd' within axes, it both calculates and plots the spectrum"""
-        #try:
-        self.clear()
         Pxx, freqs = self.axes.psd(data, NFFT = NFFT, Fs = FS)
-        #except wx.PyDeadObjectError:
-        #    exit(3)
         return Pxx, freqs
