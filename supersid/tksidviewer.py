@@ -26,7 +26,7 @@ class tkSidViewer(tk.Frame):
         Creation of the Frame with menu and graph display using matplotlib
         """
         matplotlib.use('TkAgg')
-        self.version = "1.3.1 20130817"
+        self.version = "1.3.2 20150421"
         self.controller = controller  # previously referred as 'parent'
         self.tk_root = tk.Tk()
         tk.Frame.__init__(self, parent=None, background="white")
@@ -42,6 +42,7 @@ class tkSidViewer(tk.Frame):
         self.canvas = FigureCanvas(self.psd_figure, self)
         self.canvas.show()
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.bind('<Configure>', self.on_resize)
 
         self.toolbar = NavigationToolbar2TkAgg( self.canvas, self )
         self.toolbar.update()
@@ -59,7 +60,6 @@ class tkSidViewer(tk.Frame):
         self.label.pack(fill=tk.X)
         self.pack()
 
-
         # Default View
 
     def run(self):
@@ -70,8 +70,7 @@ class tkSidViewer(tk.Frame):
 
 
     def clear(self):
-        self.axes.cla()
-        pass
+        self.axes.cla()  # erase previous curve before drawing the new one
 
 
     def status_display(self, message, level=0, field=0):
@@ -83,3 +82,8 @@ class tkSidViewer(tk.Frame):
         """By calling 'psd' within axes, it both calculates and plots the spectrum"""
         Pxx, freqs = self.axes.psd(data, NFFT = NFFT, Fs = FS)
         return Pxx, freqs
+
+    def on_resize(self, event):
+        w,h = event.width, event.height
+        #self.config(width=w, height=h)
+        print(w,h)
