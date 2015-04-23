@@ -61,7 +61,7 @@ class Config(dict):
         # each section (dico entry) matches a list of parameters
         # each parameter has a key description, a type for cast, a default value or None if mandatory
         sections = { 'PARAMETERS': ( # optional entries
-                                    ('contact', str, ""),               # email of the SuperSID owner
+                                    ('contact', str, None),             # email of the SuperSID owner
                                     ('hourly_save', str, "no"),         # new flag: yes/no to save every hours
                                     ('data_path', str, ""),             # new: to override DATA_PATH_NAME by user
                                     ('log_format', str, SID_FORMAT),    # sid_format (default), supersid_format
@@ -120,7 +120,7 @@ class Config(dict):
                 except ConfigParser.NoOptionError:
                     if pdefault is None: # missing mandatory parameter
                         self.config_ok = False
-                        self.config_err = "'"+pkey+"' is not found in 'supersid.cfg'. Please check."
+                        self.config_err = "'"+pkey+"' is not found in '%s'. Please check." % filename
                         return
                     else: # optional, assign default
                         self.setdefault(pkey, pdefault)
