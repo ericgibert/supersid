@@ -51,6 +51,13 @@ class tkSidViewer(tk.Frame):
         self.axes.hold(True)
 
         # StatusBar
+        self.statusbar_txt = tk.StringVar()
+        self.label=tk.Label(self.tk_root, bd=1, relief=tk.SUNKEN, anchor=tk.W,
+                           textvariable=self.statusbar_txt,
+                           font=('arial',16,'normal'))
+        self.statusbar_txt.set('Initialization...')
+        self.label.pack(fill=tk.X)
+        self.pack()
 
 
         # Default View
@@ -61,17 +68,6 @@ class tkSidViewer(tk.Frame):
     def close(self):
         self.tk_root.quit()
 
-    def updateDisplay(self, msg=None):
-        """
-        Receives data from thread and updates the display (graph and statusbar)
-        """
-        print("in updateDisplay")
-        try:
-            self.canvas.draw()
-            if msg:
-                self.status_display(msg.data)
-        except:
-            pass
 
     def clear(self):
         try:
@@ -80,16 +76,21 @@ class tkSidViewer(tk.Frame):
             pass
 
     def status_display(self, message, level=0, field=0):
-        pass
+        """update the main frame by changing the message in status bar"""
+        print(message)
+        try:
+            self.canvas.draw()
+            self.statusbar_txt.set(message)
+            self.tk_root.update()
+        except:
+            pass
 
 
     def get_psd(self, data, NFFT, FS):
         """By calling 'psd' within axes, it both calculates and plots the spectrum"""
-        print("in get_psd")
         #try:
         self.clear()
         Pxx, freqs = self.axes.psd(data, NFFT = NFFT, Fs = FS)
         #except wx.PyDeadObjectError:
         #    exit(3)
-        self.updateDisplay()
         return Pxx, freqs
