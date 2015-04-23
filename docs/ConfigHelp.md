@@ -20,8 +20,8 @@ The configuration file is a simple text file formatted as a classic '.ini' struc
 This section groups most of the parameters identifying your SuperSID monitor. Some optional parameters offer the possibility to change some default values used by the program.
 
 ### Monitor Identification ###
-  * contact:  email of the SuperSID owner
-  * site_name:
+  * contact: email or phone number of the SuperSID owner. Mandatory.
+  * site_name: unique identification of the SuperSID monitor. Mandatory.
   * monitor_id: 
   * longitude:
   * latitude:
