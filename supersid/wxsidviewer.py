@@ -7,8 +7,6 @@ Each Viewer must implement:
 - __init__(): all initializations
 - run(): main loop to get user input
 - close(): cleaning up
-
-- clear(): clear the screen/display
 - status_display(): display a message in a status bar or equivalent
 """
 from __future__ import print_function
@@ -86,7 +84,7 @@ class wxSidViewer(wx.Frame):
 
         psd_sizer.Add(self.canvas, 1, wx.EXPAND)       
         self.axes = psd_figure.add_subplot(111)
-        self.axes.hold(True)
+        self.axes.hold(False)
 
         # StatusBar
         self.status_bar = self.CreateStatusBar()
@@ -116,12 +114,7 @@ class wxSidViewer(wx.Frame):
         except:
             pass
         
-    def clear(self):
-        try:
-            self.axes.cla()
-        except:
-            pass
-        
+
     def get_axes(self):
         return self.axes
 

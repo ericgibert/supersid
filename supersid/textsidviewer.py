@@ -7,8 +7,6 @@ Each Viewer must implement:
 - __init__(): all initializations
 - run(): main loop to get user input
 - close(): cleaning up
-
-- clear(): clear the screen/display
 - status_display(): display a message in a status bar or equivalent
 
 """
@@ -43,9 +41,6 @@ class textSidViewer:
     def status_display(self, msg, level = 0):
         print (("\r" + msg + " "*self.MAXLINE)[:self.MAXLINE],  end='')
         sys.stdout.flush()
-
-    def clear(self):
-        pass
 
     def close(self):
         self.timer.cancel()

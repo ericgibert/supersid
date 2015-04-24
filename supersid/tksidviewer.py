@@ -59,13 +59,8 @@ class tkSidViewer():
         self.refresh_psd() # start the re-draw loop
         self.tk_root.mainloop()
 
-
     def close(self):
         self.tk_root.quit()
-
-    def clear(self):
-        #self.axes.cla()  # erase previous curve before drawing the new one
-        pass
 
     def status_display(self, message, level=0, field=0):
         """update the main frame by changing the message in status bar"""
