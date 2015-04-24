@@ -192,6 +192,21 @@ class SuperSID():
         if self.viewer:
             self.viewer.close()
 
+    def about_app(self):
+        """return a text indicating various information on the app, incl, versions"""
+        msg = """This program is designed to detect Sudden Ionosphere Disturbances (SID), \
+which are caused by a blast of intense X-ray radiation when there is a Solar Flare on the Sun.\n\n""" + \
+            "Controller: " + self.version + "\n" +  \
+            "Sampler: " + self.sampler.version  + "\n"  \
+            "Timer: " + self.timer.version  + "\n"  \
+            "Config: " + self.config.version  + "\n"  \
+            "Logger: " + self.logger.version  + "\n"  \
+            "Sidfile: " + self.logger.sid_file.version  + "\n" + \
+            "Viewer: " + self.viewer.version  + "\n"  + \
+            "\n\nAuthor: Eric Gibert  ericgibert@yahoo.fr" +  \
+            "\n\nVisit http://solar-center.stanford.edu/SID/sidmonitor/ for more information."
+        return msg
+
 
 #-------------------------------------------------------------------------------
 def exist_file(x):

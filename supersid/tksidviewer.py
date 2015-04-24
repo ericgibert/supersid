@@ -13,6 +13,7 @@ if sys.version_info[0] < 3:
     import Tkinter as tk
 else:
     import tkinter as tk
+import tkMessageBox
 
 import supersid_plot as SSP
 from config import FILTERED, RAW
@@ -26,12 +27,27 @@ class tkSidViewer():
         Creation of the Frame with menu and graph display using matplotlib
         """
         matplotlib.use('TkAgg')
-        self.version = "1.3.2 20150421"
+        self.version = "1.3.2 20150421 (tk)"
         self.controller = controller  # previously referred as 'parent'
         self.tk_root = tk.Tk()
         self.tk_root.title("supersid @ " + self.controller.config['site_name'])
 
         # All Menus creation
+        menubar = tk.Menu(self.tk_root)
+        filemenu = tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label="New", command=self.donothing)
+        filemenu.add_command(label="Open", command=self.donothing)
+        filemenu.add_command(label="Save", command=self.donothing)
+        filemenu.add_command(label="Save as...", command=self.donothing)
+        filemenu.add_separator()
+        filemenu.add_command(label="Exit", command=self.close)
+        menubar.add_cascade(label="File", menu=filemenu)
+
+        helpmenu = tk.Menu(menubar, tearoff=0)
+        helpmenu.add_command(label="About...", command=self.on_about)
+        menubar.add_cascade(label="Help", menu=helpmenu)
+
+        self.tk_root.config(menu=menubar)
 
         # FigureCanvas
         self.psd_figure = Figure(facecolor='beige')
@@ -79,4 +95,11 @@ class tkSidViewer():
             self.canvas.draw()
             self.need_refresh = False
         self.tk_root.after(500, self.refresh_psd)
+
+    def donothing(self):
+        pass
+
+    def on_about(self):
+        """About message box display"""
+        tkMessageBox.showinfo("SuperSID", self.controller.about_app())
 

@@ -36,7 +36,7 @@ class wxSidViewer(wx.Frame):
         # the application MUST created first
         self.app = wx.App(redirect=False)
         #
-        self.version = "1.3.1 20150421"
+        self.version = "1.3.1 20150421 (wx)"
         self.controller = controller  # previously referred as 'parent'      
         # Frame
         wx.Frame.__init__(self, None, -1, "supersid @ " + self.controller.config['site_name'], pos = (20, 20), size=(1000,400))     
@@ -175,25 +175,13 @@ class wxSidViewer(wx.Frame):
         """Call the Controller for writing filtered data to file"""
         self.controller.save_current_buffers('current_filtered.csv', FILTERED)
         
-    def on_about(self, event):    
-        description = """This program is designed to detect Sudden Ionosphere Disturbances (SID), \
-which are caused by a blast of intense X-ray radiation when there is a Solar Flare on the Sun.\n\n""" + \
-                        "Controller:" + self.controller.version + "\n" +  \
-                        "Sampler:" + self.controller.sampler.version  + "\n"  \
-                        "Timer:" + self.controller.timer.version  + "\n"  \
-                        "Config:" + self.controller.config.version  + "\n"  \
-                        "Logger:" + self.controller.logger.version  + "\n"  \
-                        "Sidfile:" + self.controller.logger.sid_file.version  + "\n"  \
-                        "wx viewer:" + self.version  + "\n"
-
-
+    def on_about(self, event):
+        """Open an About message box"""
         info = wx.AboutDialogInfo()
         info.SetIcon(wx.Icon('supersid_icon.png', wx.BITMAP_TYPE_PNG))
         info.SetName('SuperSID')
-        info.SetVersion(self.version)
-        
-        info.SetDescription(description)
-        info.SetCopyright('(C) 2008-2012 - Stanford Solar Center and Eric Gibert')
+        info.SetDescription(self.controller.about_app())
+        info.SetCopyright('(c) Stanford Solar Center and Eric Gibert')
         wx.AboutBox(info)
 
     def on_click(self, event): # MLP mouse event

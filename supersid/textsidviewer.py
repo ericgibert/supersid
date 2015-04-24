@@ -20,7 +20,7 @@ from config import FILTERED, RAW
 
 class textSidViewer:
     def __init__(self, controller):
-        self.version = "1.3.1 20150421"
+        self.version = "1.3.1 20150421 (text)"
         print ("SuperSID initialization")
         self.controller = controller
         self.getch = _Getch()
@@ -80,15 +80,9 @@ class textSidViewer:
         elif s == 'v':
             print ("\n")
             try:
-                print ("Controller:", self.controller.version)
-                print ("Sampler:", self.controller.sampler.version)
-                print ("Timer:", self.controller.timer.version)
-                print ("Config:", self.controller.config.version)
-                print ("Logger:",self.controller.logger.version)
-                print ("Sidfile:",self.controller.logger.sid_file.version)
-                print ("Text viewer:", self.version)
-            except AttributeError:
-                print ("Version not found")
+                print(self.controller.about_app())
+            except:
+                print("Warning: cannot get all modules' versions")
         else:
             sys.stdout.write('\a')  # terminal bell
         # call myself again in half a second to check if a new key has been pressed
