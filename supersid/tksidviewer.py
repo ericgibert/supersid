@@ -13,7 +13,7 @@ if sys.version_info[0] < 3:
     import Tkinter as tk
 else:
     import tkinter as tk
-import tkMessageBox
+import tkMessageBox, tkFileDialog
 
 import supersid_plot as SSP
 from config import FILTERED, RAW
@@ -38,12 +38,15 @@ class tkSidViewer():
         filemenu.add_command(label="Save Raw buffers", command=lambda: self.save_file('r'),underline=5,accelerator="Ctrl+R")
         filemenu.add_command(label="Save Filtered buffers", command=lambda: self.save_file('f'),underline=5,accelerator="Ctrl+F")
         filemenu.add_command(label="Save Extended raw buffers", command=lambda: self.save_file('f'),underline=5,accelerator="Ctrl+E")
+        filemenu.add_command(label="Save filtered as ...", command=lambda: self.save_file('s'),underline=5,accelerator="Ctrl+S")
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=self.close,underline=1,accelerator="Ctrl+X")
         self.tk_root.bind_all("<Control-r>", self.save_file)
         self.tk_root.bind_all("<Control-f>", self.save_file)
         self.tk_root.bind_all("<Control-e>", self.save_file)
+        self.tk_root.bind_all("<Control-s>", self.save_file)
         self.tk_root.bind_all("<Control-x>", self.close)
+        self.tk_root.protocol("WM_DELETE_WINDOW", self.close)
         menubar.add_cascade(label="File", menu=filemenu)
 
         helpmenu = tk.Menu(menubar, tearoff=0)
@@ -79,7 +82,8 @@ class tkSidViewer():
         self.tk_root.mainloop()
 
     def close(self, param=None):
-        self.tk_root.quit()
+        if tkMessageBox.askyesno("Confirm exit", "Are you sure you want to exit SuperSID?"):
+            self.tk_root.quit()
 
     def status_display(self, message, level=0, field=0):
         """update the main frame by changing the message in status bar"""
@@ -108,9 +112,21 @@ class tkSidViewer():
             saved_files = self.controller.save_current_buffers(log_type='filtered', log_format = 'both')
         elif param == 'e':
             saved_files = self.controller.save_current_buffers(log_type='raw', log_format = 'supersid_extended')
+        elif param == 's':
+            filename = self.AskSaveasFilename()
+            if filename:
+                saved_files = self.controller.save_current_buffers(filename, log_type='filtered', log_format = 'supersid')
         tkMessageBox.showinfo("SuperSID files saved", "\n".join(saved_files))
 
     def on_about(self):
         """About message box display"""
         tkMessageBox.showinfo("SuperSID", self.controller.about_app())
 
+    def AskSaveasFilename(self, title='Save File', filetypes=None, initialfile=''):
+        """return a string containing file name (the calling routine will need to open the file)"""
+        if filetypes==None:
+            filetypes = [
+                ('CSV File','*.csv'),
+                ('Any File','*.*')]
+        fileName = tkFileDialog.asksaveasfilename(parent=self.tk_root, filetypes=filetypes, initialfile=initialfile ,title=title)
+        return fileName

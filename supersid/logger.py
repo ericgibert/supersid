@@ -8,6 +8,7 @@
 #   - add config.CONSTANT
 #   - fix 'raw_input' to ensure code works on both Python 2 nd 3
 from __future__ import print_function   # use the new Python 3 'print' function
+from os import path
 try:
     input = raw_input  # this is Python 2 raw_input now to be used like input in Python 3
 except NameError:
@@ -85,9 +86,8 @@ class Logger():
     
     def log_supersid_format(self, stations, filename='', log_type=FILTERED, extended = False):
         """Cascade all buffers in one file."""
-        filenames = []
-        my_filename = self.config.data_path + (filename or self.sid_file.get_supersid_filename())
-        filenames.append(my_filename)
+        my_filename = filename if filename and path.isabs(filename) \
+                      else self.config.data_path + (filename or self.sid_file.get_supersid_filename())
         self.sid_file.write_data_supersid(my_filename, log_type, extended=extended, bema_wing=self.config["bema_wing"])
-        return filenames
+        return [my_filename]
     
