@@ -47,7 +47,7 @@ class SuperSID():
     running = False  # class attribute to indicate if the SID application is running
 
     def __init__(self, config_file='', read_file=None):
-        self.version = "1.3.2 20150421"
+        self.version = "EG 1.3.2 20150421"
         self.timer = None
         self.sampler = None
         self.viewer = None
@@ -64,6 +64,7 @@ class SuperSID():
             exit(1)
         else:
             print(self.config.filenames) # good for debugging: what .cfg file(s) were actually read
+        self.config["Supersid_Version"] = self.version
 
         # Create Logger - Logger will read an existing file if specified as -r|--read script argument
         self.logger = Logger(self, read_file)
