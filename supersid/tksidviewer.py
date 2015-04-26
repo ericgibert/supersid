@@ -35,12 +35,15 @@ class tkSidViewer():
         # All Menus creation
         menubar = tk.Menu(self.tk_root)
         filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="New", command=self.donothing)
-        filemenu.add_command(label="Open", command=self.donothing)
-        filemenu.add_command(label="Save", command=self.donothing)
-        filemenu.add_command(label="Save as...", command=self.donothing)
+        filemenu.add_command(label="Save Raw buffers", command=lambda: self.save_file('r'),underline=5,accelerator="Ctrl+R")
+        filemenu.add_command(label="Save Filtered buffers", command=lambda: self.save_file('f'),underline=5,accelerator="Ctrl+F")
+        filemenu.add_command(label="Save Extended raw buffers", command=lambda: self.save_file('f'),underline=5,accelerator="Ctrl+E")
         filemenu.add_separator()
-        filemenu.add_command(label="Exit", command=self.close)
+        filemenu.add_command(label="Exit", command=self.close,underline=1,accelerator="Ctrl+X")
+        self.tk_root.bind_all("<Control-r>", self.save_file)
+        self.tk_root.bind_all("<Control-f>", self.save_file)
+        self.tk_root.bind_all("<Control-e>", self.save_file)
+        self.tk_root.bind_all("<Control-x>", self.close)
         menubar.add_cascade(label="File", menu=filemenu)
 
         helpmenu = tk.Menu(menubar, tearoff=0)
@@ -75,7 +78,7 @@ class tkSidViewer():
         self.refresh_psd() # start the re-draw loop
         self.tk_root.mainloop()
 
-    def close(self):
+    def close(self, param=None):
         self.tk_root.quit()
 
     def status_display(self, message, level=0, field=0):
@@ -96,8 +99,16 @@ class tkSidViewer():
             self.need_refresh = False
         self.tk_root.after(500, self.refresh_psd)
 
-    def donothing(self):
-        pass
+    def save_file(self, param=None):
+        """Save the files as per user's menu choice"""
+        param = param if isinstance(param, str) else param.keysym # which is the letter with the CTRL-
+        if param == 'r':
+            saved_files = self.controller.save_current_buffers(log_type='raw', log_format = 'both')
+        elif param == 'f':
+            saved_files = self.controller.save_current_buffers(log_type='filtered', log_format = 'both')
+        elif param == 'e':
+            saved_files = self.controller.save_current_buffers(log_type='raw', log_format = 'supersid_extended')
+        tkMessageBox.showinfo("SuperSID files saved", "\n".join(saved_files))
 
     def on_about(self):
         """About message box display"""
