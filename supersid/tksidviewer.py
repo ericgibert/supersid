@@ -40,13 +40,12 @@ class tkSidViewer():
         filemenu.add_command(label="Save Extended raw buffers", command=lambda: self.save_file('f'),underline=5,accelerator="Ctrl+E")
         filemenu.add_command(label="Save filtered as ...", command=lambda: self.save_file('s'),underline=5,accelerator="Ctrl+S")
         filemenu.add_separator()
-        filemenu.add_command(label="Exit", command=self.close,underline=1,accelerator="Ctrl+X")
+        filemenu.add_command(label="Exit", command=lambda : self.close(force_close=False)) # ,underline=1,accelerator="Ctrl+X")
         self.tk_root.bind_all("<Control-r>", self.save_file)
         self.tk_root.bind_all("<Control-f>", self.save_file)
         self.tk_root.bind_all("<Control-e>", self.save_file)
         self.tk_root.bind_all("<Control-s>", self.save_file)
-        self.tk_root.bind_all("<Control-x>", self.close)
-        self.tk_root.protocol("WM_DELETE_WINDOW", self.close)
+        self.tk_root.protocol("WM_DELETE_WINDOW", lambda : self.close(False))  # user click on the [X] to close the window
         menubar.add_cascade(label="File", menu=filemenu)
 
         helpmenu = tk.Menu(menubar, tearoff=0)
@@ -81,8 +80,8 @@ class tkSidViewer():
         self.refresh_psd() # start the re-draw loop
         self.tk_root.mainloop()
 
-    def close(self, param=None):
-        if tkMessageBox.askyesno("Confirm exit", "Are you sure you want to exit SuperSID?"):
+    def close(self, force_close=True):
+        if not force_close and tkMessageBox.askyesno("Confirm exit", "Are you sure you want to exit SuperSID?"):
             self.tk_root.quit()
 
     def status_display(self, message, level=0, field=0):
