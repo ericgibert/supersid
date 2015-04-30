@@ -130,12 +130,13 @@ class SuperSID():
         try:
             data = self.sampler.capture_1sec()  # return a list of 1 second signal strength
             Pxx, freqs = self.psd(data, self.sampler.NFFT, self.sampler.audio_sampling_rate)
+            for binSample in self.sampler.monitored_bins:
+                signal_strengths.append(Pxx[binSample])
         except IndexError as idxerr:
             print("Index Error:", idxerr)
             print("Data len:", len(data))
-        else:
-            for binSample in self.sampler.monitored_bins:
-                signal_strengths.append(Pxx[binSample])
+        except TypeError as err_te:
+            print("Warning:", err_te)
 
         # ensure that one thread at the time accesses the sid_file's' buffers
         with self.timer.lock:
