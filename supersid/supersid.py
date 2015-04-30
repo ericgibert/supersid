@@ -126,17 +126,16 @@ class SuperSID():
         # Get new data and pass them to the View
         message = "%s  [%d]  Capturing data..." % (self.timer.get_utc_now(), current_index)
         self.viewer.status_display(message, level=1)
-
+        signal_strengths = []
         try:
             data = self.sampler.capture_1sec()  # return a list of 1 second signal strength
             Pxx, freqs = self.psd(data, self.sampler.NFFT, self.sampler.audio_sampling_rate)
         except IndexError as idxerr:
             print("Index Error:", idxerr)
             print("Data len:", len(data))
-
-        signal_strengths = []
-        for binSample in self.sampler.monitored_bins:
-            signal_strengths.append(Pxx[binSample])
+        else:
+            for binSample in self.sampler.monitored_bins:
+                signal_strengths.append(Pxx[binSample])
 
         # ensure that one thread at the time accesses the sid_file's' buffers
         with self.timer.lock:

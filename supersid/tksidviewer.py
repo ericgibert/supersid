@@ -91,15 +91,22 @@ class tkSidViewer():
 
     def get_psd(self, data, NFFT, FS):
         """By calling 'psd' within axes, it both calculates and plots the spectrum"""
-        Pxx, freqs = self.axes.psd(data, NFFT = NFFT, Fs = FS)
-        self.need_refresh = True
+        try:
+            Pxx, freqs = self.axes.psd(data, NFFT = NFFT, Fs = FS)
+            self.need_refresh = True
+        except RuntimeError as err_re:
+            print("Warning:", err_re)
+            Pxx, freqs = None, None
         return Pxx, freqs
 
     def refresh_psd(self, z=None):
         """redraw the graphic PSD plot if needed i.e.new data have been given to get_psd"""
         if self.need_refresh:
-            self.canvas.draw()
-            self.need_refresh = False
+            try:
+                self.canvas.draw()
+                self.need_refresh = False
+            except IndexError as err_idx:
+                print("Warning:", err_idx)
         self.tk_root.after(500, self.refresh_psd)
 
     def save_file(self, param=None):
