@@ -12,8 +12,6 @@ Program is tested on both Fedora 16 on Desktop PC and Debian Wheezy on **Raspber
 	* wxPython 2.8.12.1 (unicode) for Python 2.7
 	* Python 2.7 PyAudio OR pyAlsaAudio (recommended)
 
-~~Python 2.7 scipy-0.10.0~~ no longer requiered.
-
 + matplotlib:
 
 ````
@@ -51,14 +49,76 @@ PeriodSize=128
 #### Card
 Specify which sound card to use. To know which sound card are recognized on your Linux box uses:  
 
+Example on my Raspberry Pi B:
 ````
 > ls -l /proc/asound/  
-sss    
-ddd
-
+total 0
+lrwxrwxrwx 1 root root 5 Jul 19 10:42 ALSA -> card0
+dr-xr-xr-x 3 root root 0 Jul 19 10:42 card0
+dr-xr-xr-x 4 root root 0 Jul 19 10:42 card1
+-r--r--r-- 1 root root 0 Jul 19 10:42 cards
+-r--r--r-- 1 root root 0 Jul 19 10:42 devices
+lrwxrwxrwx 1 root root 5 Jul 19 10:42 External -> card1
+-r--r--r-- 1 root root 0 Jul 19 10:42 hwdep
+dr-xr-xr-x 2 root root 0 Jul 19 10:42 oss
+-r--r--r-- 1 root root 0 Jul 19 10:42 pcm
+dr-xr-xr-x 2 root root 0 Jul 19 10:42 seq
+-r--r--r-- 1 root root 0 Jul 19 10:42 timers
+-r--r--r-- 1 root root 0 Jul 19 10:42 version
 ````
+Here the USB soundcard is identified as `External`. Thus the [Capture] section of the config file will be:
+````
+[Capture]
+Audio=alsaaudio
+Card=External
+PeriodSize = 128
+````
+
+Other example on my PC:
+````
+ls -l /proc/asound/
+total 0
+dr-xr-xr-x. 6 root root 0 Jul 19 10:44 card0
+dr-xr-xr-x. 3 root root 0 Jul 19 10:44 card1
+-r--r--r--. 1 root root 0 Jul 19 10:44 cards
+-r--r--r--. 1 root root 0 Jul 19 10:44 devices
+-r--r--r--. 1 root root 0 Jul 19 10:44 hwdep
+lrwxrwxrwx. 1 root root 5 Jul 19 10:44 MID -> card0
+-r--r--r--. 1 root root 0 Jul 19 10:44 modules
+dr-xr-xr-x. 2 root root 0 Jul 19 10:44 oss
+-r--r--r--. 1 root root 0 Jul 19 10:44 pcm
+lrwxrwxrwx. 1 root root 5 Jul 19 10:44 Pro -> card1
+dr-xr-xr-x. 2 root root 0 Jul 19 10:44 seq
+-r--r--r--. 1 root root 0 Jul 19 10:44 timers
+-r--r--r--. 1 root root 0 Jul 19 10:44 version
+````
+
+To check that the sampler recognizes your card properly, execute the `sample.py` module on its own:
+````
+python ~/supersid/supersid/sampler.py
+Possible capture modules: ['alsaaudio']
+Accessing MID ...
+alsaaudio sound card capture on sysdefault:CARD=MID at 48000 Hz
+Accessing Pro ...
+alsaaudio sound card capture on sysdefault:CARD=Pro at 48000 Hz
+````
+
+This confirms that both `MID` and `Pro` can be used to capture sound.
+
+On the other hand, on the Raspberry Pi, the card0 is playback only i.e. does not allow capture. Hence the following output:
+````
+python supersid/supersid/sampler.py
+Possible capture modules: ['alsaaudio']
+Accessing ALSA ...
+! ERROR accessing card ALSA
+Accessing External ...
+alsaaudio sound card capture on sysdefault:CARD=External at 48000 Hz
+````
+
+The first soundcard `ALSA` does not allow capture. You need to use the second card (in my case `External`).
 
 #### PeriodSize
 Number of frame ... If too big then error `error message` will be returned.
+Start with `PeriodSize = 128` and optionaly try out larger power.
 
 
