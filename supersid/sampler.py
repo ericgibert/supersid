@@ -172,11 +172,11 @@ if __name__ == '__main__':
     if 'alsaaudio' in audioModule:
         for card in alsaaudio.cards():
             try:
-                print("Accessing", card)
+                print("Accessing", card, "...")
                 sc = alsaaudio_soundcard(card, 1024, 48000)
                 sc.info()
             except:
-                print("ERROR accessing card", card)
+                print("! ERROR accessing card", card)
 
     if 'pyaudio' in audioModule:
         sc = pyaudio_soundcard(48000)
