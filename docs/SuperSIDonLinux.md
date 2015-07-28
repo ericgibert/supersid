@@ -2,7 +2,7 @@
 
 Implementation of the SuperSID program to record Solar Induced Disturbances on a Linux platform.
 
-Program is tested on Fedora 16, 20, 22 on Desktop PC and Debian Wheezy on **Raspberry Pi** & Pidorra. 
+Program is tested on Fedora 16, 20 on Desktop PC and Debian Wheezy on **Raspberry Pi** & Pidorra. 
 
 ## Python Requirements ##
 
