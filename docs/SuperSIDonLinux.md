@@ -2,21 +2,31 @@
 
 Implementation of the SuperSID program to record Solar Induced Disturbances on a Linux platform.
 
-Program is tested on both Fedora 16 on Desktop PC and Debian Wheezy on **Raspberry Pi**. 
+Program is tested on Fedora 16, 20, 22 on Desktop PC and Debian Wheezy on **Raspberry Pi** & Pidorra. 
 
 ## Python Requirements ##
 
-	* Python 2.7.2
-	* Python 2.7 numpy-1.6.1 or higher
-	* Python 2.7 matplotlib-1.1.0 or higher
-	* wxPython 2.8.12.1 (unicode) for Python 2.7
-	* Python 2.7 PyAudio OR pyAlsaAudio (recommended)
+Python interpreters are installed as:
+- python: Python 2
+- python3: Python 3
 
-+ matplotlib:
+To install the necessary modules, you need to be *root* or to use *sudo*.
 
+matplotlib is a key library used by SuperSid. You need to install it either directly or as a dependency as explain below.
+
+To use SuperSid in text mode only (for both Python2 and Python3):
 ````
- # yum/apt-get install matplotlib
- # yum/apt-get install python-matplotlib   or yum/apt-get install python3-matplotlib
+ # dnf/yum/apt-get install python-matplotlib   or dnf/yum/apt-get install python3-matplotlib
+````
+
+To use SuperSid with GUI based on wxPython (for Python 2 only):
+````
+ # dnf/yum/apt-get install python-matplotlib-wx
+````
+
+To use SuperSid with GUI based on tkinter (for Python2 and Python3):
+````
+ # dnf/yum/apt-get install python-matplotlib-tk   or dnf/yum/apt-get install python3-matplotlib-tk
 ````
 
 ## Sound Card Configuration ##

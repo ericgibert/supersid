@@ -50,6 +50,8 @@ try:
 
         def info(self):
             print(self.name, "at", self.audio_sampling_rate,"Hz")
+            one_sec = self.capture_1sec()
+            print(len(one_sec),"bytes read from", self.name)
 
         
 except ImportError:
@@ -173,10 +175,11 @@ if __name__ == '__main__':
         for card in alsaaudio.cards():
             try:
                 print("Accessing", card, "...")
-                sc = alsaaudio_soundcard(card, 1024, 48000)
-                sc.info()
+                for sampling_rate in [48000, 96000]:
+                    sc = alsaaudio_soundcard(card, 1024, sampling_rate)
+                    sc.info()
             except:
-                print("! ERROR accessing card", card)
+                print("! ERROR capturing sound on card", card)
 
     if 'pyaudio' in audioModule:
         sc = pyaudio_soundcard(48000)

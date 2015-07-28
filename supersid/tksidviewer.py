@@ -8,15 +8,15 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas,
 from matplotlib.figure import Figure
 
 # handle both Python 2 and 3
-import sys
-if sys.version_info[0] < 3:
-    import Tkinter as tk
-else:
+try:# python 3
     import tkinter as tk
-import tkMessageBox, tkFileDialog
-
-import supersid_plot as SSP
-from config import FILTERED, RAW
+    import tkinter.messagebox as MessageBox
+    import tkinter.filedialog as FileDialog
+except ImportError:
+    # python 2
+    import Tkinter as tk
+    import tkMessageBox as MessageBox
+    import tkFileDialog as FileDialog
 
 class tkSidViewer():
     '''
@@ -81,7 +81,7 @@ class tkSidViewer():
         self.tk_root.mainloop()
 
     def close(self, force_close=True):
-        if not force_close and tkMessageBox.askyesno("Confirm exit", "Are you sure you want to exit SuperSID?"):
+        if not force_close and MessageBox.askyesno("Confirm exit", "Are you sure you want to exit SuperSID?"):
             self.tk_root.quit()
 
     def status_display(self, message, level=0, field=0):
@@ -122,11 +122,11 @@ class tkSidViewer():
             filename = self.AskSaveasFilename()
             if filename:
                 saved_files = self.controller.save_current_buffers(filename, log_type='filtered', log_format = 'supersid')
-        tkMessageBox.showinfo("SuperSID files saved", "\n".join(saved_files))
+        MessageBox.showinfo("SuperSID files saved", "\n".join(saved_files))
 
     def on_about(self):
         """About message box display"""
-        tkMessageBox.showinfo("SuperSID", self.controller.about_app())
+        MessageBox.showinfo("SuperSID", self.controller.about_app())
 
     def AskSaveasFilename(self, title='Save File', filetypes=None, initialfile=''):
         """return a string containing file name (the calling routine will need to open the file)"""
@@ -134,5 +134,5 @@ class tkSidViewer():
             filetypes = [
                 ('CSV File','*.csv'),
                 ('Any File','*.*')]
-        fileName = tkFileDialog.asksaveasfilename(parent=self.tk_root, filetypes=filetypes, initialfile=initialfile ,title=title)
+        fileName = FileDialog.asksaveasfilename(parent=self.tk_root, filetypes=filetypes, initialfile=initialfile ,title=title)
         return fileName
