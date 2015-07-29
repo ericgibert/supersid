@@ -53,7 +53,7 @@ Python 3:
 ````
  - dnf/yum/apt-get install python3-alsaaudio
 ````
- Else `a la mano`:
+ Else *a la mano*:
 ````
  - yum install 'pkgconfig(alsa)'
  - go to http://sourceforge.net/projects/pyalsaaudio/files/
