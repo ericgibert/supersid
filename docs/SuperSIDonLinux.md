@@ -70,8 +70,8 @@ Create two sub-directories:
 Copy the supersid cfg files in the Config folder to the Private folder: you can now edit them to match your configuration, including changing the *data_path* to point to the *Data* sub-folder you just created.
 
 
-## Specific `supersid.cfg` Entry ##
-A new optional section for specific capture needs can be declared in `Config/supersid.cfg`. 
+## Specific `supersid.*.cfg` Section ##
+A new section for Linux capture needs can be declared in `Config/supersid.*.cfg`. 
 
 ````
 [Capture]
@@ -82,7 +82,7 @@ PeriodSize=128
 ````
 
 #### Card
-Specify which sound card to use. To know which sound card are recognized on your Linux box uses:  
+Specify which sound card to use in the `Card` entry. To know which sound card are recognized on your Linux box execute `ls -l /proc/asound/`.  
 
 Example on my Raspberry Pi B:
 ````
@@ -128,14 +128,30 @@ dr-xr-xr-x. 2 root root 0 Jul 19 10:44 seq
 -r--r--r--. 1 root root 0 Jul 19 10:44 version
 ````
 
+I choose the MID card as the secind card is my webcam:
+````
+[Capture]
+Audio=alsaaudio
+Card=MID
+PeriodSize = 128
+````
+
 To check that the sampler recognizes your card properly, execute the `sample.py` module on its own:
 ````
 python ~/supersid/supersid/sampler.py
 Possible capture modules: ['alsaaudio']
 Accessing MID ...
 alsaaudio sound card capture on sysdefault:CARD=MID at 48000 Hz
+48000 bytes read from alsaaudio sound card capture on sysdefault:CARD=MID
+alsaaudio sound card capture on sysdefault:CARD=MID at 96000 Hz
+96000 bytes read from alsaaudio sound card capture on sysdefault:CARD=MID
 Accessing Pro ...
 alsaaudio sound card capture on sysdefault:CARD=Pro at 48000 Hz
+48000 bytes read from alsaaudio sound card capture on sysdefault:CARD=Pro
+alsaaudio sound card capture on sysdefault:CARD=Pro at 96000 Hz
+! ERROR capturing sound on card Pro
+Capture data too large. Try decreasing period size
+
 ````
 
 This confirms that both `MID` and `Pro` can be used to capture sound.
