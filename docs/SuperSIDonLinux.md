@@ -4,6 +4,11 @@ Implementation of the SuperSID program to record Solar Induced Disturbances on a
 
 Program is tested on Fedora 16, 20, 22 on Desktop PC and Debian Wheezy on **Raspberry Pi** & Pidorra. 
 
+## My Table of content
+- [Python Requirements](#id-section1)
+- [Sound Card Configuration](#id-section2)
+
+<div id='id-section1'/>
 ## Python Requirements ##
 
 Python interpreters are installed as:
@@ -28,7 +33,7 @@ To use SuperSid with GUI based on tkinter (for Python2 and Python3):
 ````
  # dnf/yum/apt-get install python-matplotlib-tk   or dnf/yum/apt-get install python3-matplotlib-tk
 ````
-
+<div id='id-section2'/>
 ## Sound Card Configuration ##
 This is really the tricky part as sound capture on Linux is rather complex. The original SuperSID program uses PyAudio, which works fine on Windows. But for Linux, with ALSA, it is rather frustrating: mode selection (with high sampling rate) is not always successfull, **`jackd`** is requiered but its configuration is not easy.
 
@@ -39,11 +44,14 @@ Python 2:
  # yum/apt-get install python-alsaaudio
 
 Python 3:
+ - try *dnf/yum/apt-get install python3-alsaaudio*: your distribution might have it already packaged.
+ Else *a la mano*:
  - yum install 'pkgconfig(alsa)'
  - go to http://sourceforge.net/projects/pyalsaaudio/files/
  - download and unpack the latest pyalsaaudio-___.tar.gz
- - python3 setup.py install
+ - as *root*:  python3 setup.py install 
 ````
+
 
 ## To install SuperSid ##
 
