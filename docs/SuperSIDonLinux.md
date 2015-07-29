@@ -2,7 +2,7 @@
 
 Implementation of the SuperSID program to record Solar Induced Disturbances on a Linux platform.
 
-Program is tested on Fedora 16, 20 on Desktop PC and Debian Wheezy on **Raspberry Pi** & Pidorra. 
+Program is tested on Fedora 16, 20, 22 on Desktop PC and Debian Wheezy on **Raspberry Pi** & Pidorra. 
 
 ## Python Requirements ##
 
@@ -44,6 +44,21 @@ Python 3:
  - download and unpack the latest pyalsaaudio-___.tar.gz
  - python3 setup.py install
 ````
+
+## To install SuperSid ##
+
+Go to your home directory and execute:
+```
+ # git clone https://github.com/ericgibert/supersid.git
+```
+
+A *supersid* folder is created with all the software and its documentation. Change to this directory (*cd supersid*).
+Create two sub-directories:
+- *mkdir Data*
+- *mkdir Private*
+
+Copy the supersid cfg files in the Config folder to the Private folder: you can now edit them to match your configuration, including changing the *data_path* to point to the *Data* sub-folder you just created.
+
 
 ## Specific `supersid.cfg` Entry ##
 A new optional section for specific capture needs can be declared in `Config/supersid.cfg`. 
@@ -132,3 +147,6 @@ Number of frame ... If too big then error `error message` will be returned.
 Start with `PeriodSize = 128` and optionaly try out larger power.
 
 
+## Execution ##
+
+You can execute *~/supersid/supersid.py ~/supersid/Private/superdid.text.cfg* (or any .cfg of your choice).

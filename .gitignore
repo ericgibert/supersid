@@ -35,5 +35,6 @@ nosetests.xml
 .project
 .pydevproject
 Private
+Data
 *.nja
 .idea

@@ -39,7 +39,7 @@ try:
             self.name = "alsaaudio sound card capture on " + card
     
         def capture_1sec(self):
-            raw_data = ""
+            raw_data = b''
             while len(raw_data) < 2 * self.audio_sampling_rate:
                 length,data = self.inp.read()
                 if length> 0: raw_data += data
@@ -178,8 +178,9 @@ if __name__ == '__main__':
                 for sampling_rate in [48000, 96000]:
                     sc = alsaaudio_soundcard(card, 1024, sampling_rate)
                     sc.info()
-            except:
+            except alsaaudio.ALSAAudioError as err:
                 print("! ERROR capturing sound on card", card)
+                print(err)
 
     if 'pyaudio' in audioModule:
         sc = pyaudio_soundcard(48000)
