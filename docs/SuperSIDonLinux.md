@@ -4,9 +4,11 @@ Implementation of the SuperSID program to record Solar Induced Disturbances on a
 
 Program is tested on Fedora 16, 20, 22 on Desktop PC and Debian Wheezy on **Raspberry Pi** & Pidorra. 
 
-## My Table of content
+## Table of Content
 - [Python Requirements](#id-section1)
 - [Sound Card Configuration](#id-section2)
+- [To install SuperSid](#id-section3)
+- [Execution](#id-section4)
 
 <div id='id-section1'/>
 ## Python Requirements ##
@@ -44,15 +46,15 @@ Python 2:
  # yum/apt-get install python-alsaaudio
 
 Python 3:
- - try *dnf/yum/apt-get install python3-alsaaudio*: your distribution might have it already packaged.
- Else *a la mano*:
+ - try `dnf/yum/apt-get install python3-alsaaudio`: your distribution might have it already packaged.
+ Else `a la mano`:
  - yum install 'pkgconfig(alsa)'
  - go to http://sourceforge.net/projects/pyalsaaudio/files/
  - download and unpack the latest pyalsaaudio-___.tar.gz
- - as *root*:  python3 setup.py install 
+ - as `root`:  python3 setup.py install 
 ````
 
-
+<div id='id-section3'/>
 ## To install SuperSid ##
 
 Go to your home directory and execute:
@@ -154,7 +156,7 @@ The first soundcard `ALSA` does not allow capture. You need to use the second ca
 Number of frame ... If too big then error `error message` will be returned.
 Start with `PeriodSize = 128` and optionaly try out larger power.
 
-
+<div id='id-section4'/>
 ## Execution ##
 
 You can execute *~/supersid/supersid.py ~/supersid/Private/superdid.text.cfg* (or any .cfg of your choice).
