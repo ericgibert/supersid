@@ -2,7 +2,7 @@
 
 Implementation of the SuperSID program to record Solar Induced Disturbances on a Linux platform.
 
-Program is tested on Fedora 16, 20, 22 on Desktop PC and Debian Wheezy on **Raspberry Pi** & Pidorra. 
+Program is tested on Fedora 16, 20, 22 on Desktop PC and Debian Wheezy & Pidorra on **Raspberry Pi** . 
 
 ## Table of Content
 - [Python Requirements](#id-section1)
@@ -17,41 +17,49 @@ Python interpreters are installed as:
 - python: Python 2
 - python3: Python 3
 
-To install the necessary modules, you need to be *root* or to use *sudo*.
+To install the necessary modules, you need to be *root* or to prefix the command with  *sudo*.
 
-matplotlib is a key library used by SuperSid. You need to install it either directly or as a dependency as explain below.
+**matplotlib** is a key library used by SuperSid. You need to install it either directly or as a dependency as explain below.
 
-To use SuperSid in text mode only (for both Python2 and Python3):
+Recommended option: to use SuperSid with text mode and GUI based on tkinter:
 ````
- # dnf/yum/apt-get install python-matplotlib   or dnf/yum/apt-get install python3-matplotlib
-````
-
-To use SuperSid with GUI based on wxPython (for Python 2 only):
-````
- # dnf/yum/apt-get install python-matplotlib-wx
+- for Python2: dnf/yum/apt-get install python-matplotlib-tk
+- for Python3: dnf/yum/apt-get install python3-matplotlib-tk
 ````
 
-To use SuperSid with GUI based on tkinter (for Python2 and Python3):
+To use SuperSid in text mode only:
 ````
- # dnf/yum/apt-get install python-matplotlib-tk   or dnf/yum/apt-get install python3-matplotlib-tk
+ - for Python2: dnf/yum/apt-get install python-matplotlib
+ - for Python3: dnf/yum/apt-get install python3-matplotlib
 ````
+
+To use SuperSid with GUI based on wxPython:
+````
+ - for Python 2 only: dnf/yum/apt-get install python-matplotlib-wx
+````
+
 <div id='id-section2'/>
 ## Sound Card Configuration ##
-This is really the tricky part as sound capture on Linux is rather complex. The original SuperSID program uses PyAudio, which works fine on Windows. But for Linux, with ALSA, it is rather frustrating: mode selection (with high sampling rate) is not always successfull, **`jackd`** is requiered but its configuration is not easy.
+The original SuperSID program uses PyAudio, which works fine on Windows. But for Linux, with ALSA, it is rather frustrating: mode selection (with high sampling rate) is not always successfull, **`jackd`** is requiered but its configuration is not cumbersome.
 
 After various unsuccessful attempts to run SuperSID with PyAudio, I decided to switch to another library which directly captures sound at ALSA level: **alsaaudio**.  
 
-````
 Python 2:
+````
  # yum/apt-get install python-alsaaudio
-
+````
 Python 3:
- - try `dnf/yum/apt-get install python3-alsaaudio`: your distribution might have it already packaged.
+ Try to install the package as your ditribution might offer it
+````
+ - dnf/yum/apt-get install python3-alsaaudio
+````
  Else `a la mano`:
+````
  - yum install 'pkgconfig(alsa)'
  - go to http://sourceforge.net/projects/pyalsaaudio/files/
  - download and unpack the latest pyalsaaudio-___.tar.gz
- - as `root`:  python3 setup.py install 
+ - change to this directory
+ - as *root* or with *sudo*:  python3 setup.py install 
 ````
 
 <div id='id-section3'/>
