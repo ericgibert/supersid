@@ -69,6 +69,7 @@ Go to your home directory and execute:
 ```
  # git clone https://github.com/ericgibert/supersid.git
 ```
+In the future, change to the `~/superid` folder and execute `git pull` to update to the latest version.
 
 A *supersid* folder is created with all the software and its documentation. Change to this directory (*cd supersid*).
 Create two sub-directories:
@@ -136,7 +137,7 @@ dr-xr-xr-x. 2 root root 0 Jul 19 10:44 seq
 -r--r--r--. 1 root root 0 Jul 19 10:44 version
 ````
 
-I choose the MID card as the secind card is my webcam:
+I choose the MID card as the second card is my webcam:
 ````
 [Capture]
 Audio=alsaaudio
