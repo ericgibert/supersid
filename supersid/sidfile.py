@@ -298,7 +298,7 @@ class SidFile():
         hdr += "# UTC_Offset = %s\n" % self.sid_params['utc_offset']
         hdr += "# TimeZone = %s\n" % (self.sid_params['time_zone'] if 'time_zone' in self.sid_params else self.sid_params['timezone'])
         hdr += "#\n"
-        hdr += "# UTC_StartTime = %s\n" % self.sid_params['utc_starttime']
+        hdr += "# UTC_StartTime = %s\n" % self.sid_params['utc_starttime'][:19]
         hdr += "# LogInterval = %s\n" % (self.sid_params['log_interval'] if 'log_interval' in self.sid_params else self.sid_params['loginterval'])
         hdr += "# LogType = %s\n" % log_type
         hdr += "# MonitorID = %s\n" % (self.sid_params['monitor_id'] if 'monitor_id' in self.sid_params else self.sid_params['monitorid'])
