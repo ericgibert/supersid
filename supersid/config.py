@@ -30,7 +30,7 @@ SID_FORMAT, SUPERSID_FORMAT = 'sid_format', 'supersid_format'
 SUPERSID_EXTENDED, BOTH_EXTENDED = 'supersid_extended', 'both_extended' # with 5 decimals timestamp
 
 class Config(dict):
-    """Dictionary containing the key/values pair read from a .ini file"""
+    """Dictionary containing the key/values pair read from a .cfg file"""
     CONFIG_PATH_NAME = "../Config/" # default for historical reasons
     DATA_PATH_NAME   = "../Data/"   # default for historical reasons - can be overwritten by 'data_path'
 
@@ -76,9 +76,10 @@ class Config(dict):
                                     ('time_zone',  str, None),
                                     ('monitor_id', str, None),
                                     ('log_type',  str, None),           # 'filtered' or 'raw'
-                                    ('automatic_upload',  str, None),
-                                    ('ftp_server',  str, None),
-                                    ('ftp_directory', str, None),
+                                    # # ftp legacy
+                                    # ('automatic_upload',  str, "no"),
+                                    # ('ftp_server',  str, ""),
+                                    # ('ftp_directory', str, ""),
 
                                     ('audio_sampling_rate', int, None),
                                     ('log_interval', int, None), 
@@ -101,11 +102,17 @@ class Config(dict):
                                     ("email_server", str, ""),          # your email server (SMPT)
                                     ("email_login", str, ""),           # if your server requires a login
                                     ("email_password", str, "")         # if your server requires a passwrd
-                                    )
+                                    ),
+                      "FTP":       (('automatic_upload',  str, "no"),   # yes/no: to upload the file to the remote FTP server
+                                    ('ftp_server',  str, ""),               # address of the server like sid-ftp.stanford.edu
+                                    ('ftp_directory', str, ""),             # remote target directory to write the files
+                                    ('local_tmp', str, ""),             # local tmp folder to generate files before upload
+                                    ('call_signs', str, "")             # list of stations to upload (sub-set of [stations])
+                                    ),
                     }
 
         self.sectionfound = set()
-        for (section, fields) in sections.items():
+        for section, fields in sections.items():
             # go thru all the current section's fields
             for pkey, pcast, pdefault in fields:
                 try:
@@ -224,6 +231,11 @@ if __name__ == '__main__':
         print (cfg.filenames, "read successfully:")
     else:
         print ("Error:", cfg.config_err)
-    print (cfg)
-    print (cfg.stations)
-    print (cfg.sectionfound)
+    for section in sorted(cfg.sectionfound):
+        print ("-", section)
+    print("-"*20)
+    for k, v in sorted(cfg.items()):
+        print (k,"=",v)
+    print("-"*20)
+    for st in cfg.stations:
+        print (st)

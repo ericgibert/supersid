@@ -464,8 +464,8 @@ if __name__ == '__main__':
                                          sid.sid_params['site'],
                                          station,
                                          sid.sid_params['utc_starttime'][:10])
-            print(fname, "created.")
             sid.write_data_sid(station, fname, sid.sid_params['logtype'], apply_bema = False)
+            print(fname, "created.")
     elif args.filename_merge:
         # Merge 2 SuperSID files station by station
         sid1, sid2 = SidFile(args.filename_merge[0]), SidFile(args.filename_merge[1])
