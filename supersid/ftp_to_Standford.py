@@ -83,7 +83,7 @@ if __name__ == '__main__':
                 # generate the SID file of that station
                 # UTC_StartTime = 2014-05-31 00:00:00
                 file_startdate = sid.sid_params['utc_starttime']
-                file_name = "{}/{}_{}_{}.csv".format(cfg['local_tmp'] or cfg["data_path"],
+                file_name = "{}{}{}_{}_{}.csv".format(cfg['local_tmp'] or cfg["data_path"], path.sep,
                                                      cfg['site_name'], station_name, file_startdate[:10])
                 # if the original file is filtered then we can save it "as is" else we need to apply_bema i.e. filter it
                 sid.write_data_sid(station_name, file_name, FILTERED, apply_bema = sid.sid_params['logtype'] == RAW)
