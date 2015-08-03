@@ -37,7 +37,7 @@ class tkSidViewer():
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="Save Raw buffers", command=lambda: self.save_file('r'),underline=5,accelerator="Ctrl+R")
         filemenu.add_command(label="Save Filtered buffers", command=lambda: self.save_file('f'),underline=5,accelerator="Ctrl+F")
-        filemenu.add_command(label="Save Extended raw buffers", command=lambda: self.save_file('f'),underline=5,accelerator="Ctrl+E")
+        filemenu.add_command(label="Save Extended raw buffers", command=lambda: self.save_file('e'),underline=5,accelerator="Ctrl+E")
         filemenu.add_command(label="Save filtered as ...", command=lambda: self.save_file('s'),underline=5,accelerator="Ctrl+S")
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=lambda : self.close(force_close=False)) # ,underline=1,accelerator="Ctrl+X")
