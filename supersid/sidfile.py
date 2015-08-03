@@ -290,8 +290,8 @@ class SidFile():
         hdr = "# Site = %s\n" % (self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site'])
         if 'contact' in self.sid_params:
             hdr += "# Contact = %s\n" % self.sid_params['contact']
-        if "Supersid_Version" in self.sid_params:
-            hdr += "# Supersid_Version = %s\n" % self.sid_params['Supersid_Version']
+        if "supersid_sersion" in self.sid_params:
+            hdr += "# Supersid_Version = %s\n" % self.sid_params['supersid_sersion']
         hdr += "# Longitude = %s\n" % self.sid_params['longitude']
         hdr += "# Latitude = %s\n" % self.sid_params['latitude']
         hdr += "#\n"

@@ -64,7 +64,7 @@ class SuperSID():
             exit(1)
         else:
             print(self.config.filenames) # good for debugging: what .cfg file(s) were actually read
-        self.config["Supersid_Version"] = self.version
+        self.config["supersid_sersion"] = self.version
 
         # Create Logger - Logger will read an existing file if specified as -r|--read script argument
         self.logger = Logger(self, read_file)
