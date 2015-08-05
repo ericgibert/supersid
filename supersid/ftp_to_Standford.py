@@ -53,7 +53,7 @@ if __name__ == '__main__':
     stations = cfg['call_signs'].split(",") if cfg['call_signs'] else [s['call_sign'] for s in cfg.stations] # i.e. else all stations
     # file list
     if args.askYesterday:
-        yesterday = datetime.now() - timedelta(days=1)
+        yesterday = datetime.utcnow() - timedelta(days=1)
         file_list.append("{}{}{}_{}-{:02d}-{:02d}.csv".format(cfg['data_path'], path.sep, cfg['site_name'],
                                                        yesterday.year,yesterday.month,yesterday.day))
     # generate all the SID files ready to send in the local_tmp file

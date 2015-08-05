@@ -60,7 +60,7 @@ class Logger():
                 if answer.lower()!='y':
                     print("Abort.")
                     exit(-10)
-            elif sid_file2.sid_params['utc_starttime'] != strftime("%Y-%m-%d 00:00:00", gmtime()):
+            elif sid_file2.sid_params['utc_starttime'][:19] != strftime("%Y-%m-%d 00:00:00", gmtime()):
                 print("Not today's file. The file UTC_StartTime =", sid_file2.sid_params['utc_starttime'])
                 answer = input("Do you still want to keep its content and continue recording? [y/N]")
                 if answer.lower()!='y':
