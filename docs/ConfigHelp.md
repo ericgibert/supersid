@@ -12,7 +12,7 @@ The configuration file is a simple text file formatted as a classic '.ini' struc
  
  The supported sections are:
   * [PARAMETERS](#id-section1)
-  * [STATION_x] where x is a number in [1..n](#id-section2)
+  * [STATION_x](#id-section2) where x is a number in [1..n]
   * [Capture](#id-section3)
   * [Email](#id-section4)
   * [FTP](#id-section5)
@@ -22,11 +22,11 @@ The configuration file is a simple text file formatted as a classic '.ini' struc
 This section groups most of the parameters identifying your SuperSID monitor. Some optional parameters offer the possibility to change some default values used by the program.
 
 ### Monitor Identification ###
-  * contact: email or phone number of the SuperSID owner. Mandatory.
-  * site_name: unique identification of the SuperSID monitor. Mandatory.
-  * monitor_id: 
-  * longitude:
-  * latitude:
+  * contact: email or phone number of the SuperSID owner. *Mandatory*
+  * site_name: unique identification of the SuperSID monitor. *Mandatory*
+  * monitor_id: unique id to distinguish the monitors running on one site
+  * longitude: in decimal form
+  * latitude: in decimal form
   * utc_offset:
   * time_zone:
   
