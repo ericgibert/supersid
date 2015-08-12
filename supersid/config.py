@@ -68,7 +68,7 @@ class Config(dict):
                                     ('data_path', str, ""),             # new: to override DATA_PATH_NAME by user
                                     ('log_format', str, SID_FORMAT),    # sid_format (default), supersid_format
                                     ('mode', str, 'Standalone'),        # Server, Client, Standalone (default)
-                                    ('viewer', str, 'wx'),              # text, wx (default)
+                                    ('viewer', str, 'tk'),              # text, wx, tk (default)
                                     ('bema_wing', int, 6),              # beta_wing for sidfile.filter_buffer()
                                     # mandatory entries
                                     ('site_name', str, None),
