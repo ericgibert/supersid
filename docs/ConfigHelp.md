@@ -11,11 +11,13 @@ The file can be located in any accessible directory providing that the full qual
 The configuration file is a simple text file formatted as a classic '.ini' structure i.e. sections with squared brackets and a list of pairs 'key=value"
  
  The supported sections are:
-  * [PARAMETERS]
-  * [STATION_x] where x is a number in [1..n]
-  * [Capture]
-  * [Email]
+  * [PARAMETERS](#id-section1)
+  * [STATION_x] where x is a number in [1..n](#id-section2)
+  * [Capture](#id-section3)
+  * [Email](#id-section4)
+  * [FTP](#id-section5)
   
+<div id='id-section1'/>
 ## [PARAMETERS] ##
 This section groups most of the parameters identifying your SuperSID monitor. Some optional parameters offer the possibility to change some default values used by the program.
 
@@ -40,9 +42,7 @@ This section groups most of the parameters identifying your SuperSID monitor. So
   * hourly_save: **yes** / **no** (default). If **yes** then a raw file is written every hour to limit data loss.
   
 ### FTP to Standford server ###
-  * automatic_upload:
-  * ftp_server:
-  * ftp_directory:
+Version 1.4: FTP information are no longer part of the [PARAMETERS] section. Refer to the [FTP] section below.
   
 ### Extra ###
   * scaling_factor:
@@ -52,18 +52,21 @@ This section groups most of the parameters identifying your SuperSID monitor. So
 
   * number_of_stations: specify the number of stations to monitor. Each station is described within its own section.
 
+<div id='id-section2'/>
 ## [STATION_x] ##
 Each station to monitor is enumerated from 1 till n=*number_of_stations*. For each station, one must provide:
   * call_sign: Station ID (various VLF station lists exist like [AAVSO's] (http://www.aavso.org/vlf-station-list) and [Wikipedia's] (http://en.wikipedia.org/wiki/Very_low_frequency#List_of_VLF_transmissions))
   * frequency: emission frequency in Hz
   * color: [rgbyw] to draw multiple graph together in *SuperSID_plot.py*.
   
+<div id='id-section3'/>
 ## [Capture] ##
 This section can be omitted if you plan to use the 'pyaudio' library. If you want to use the "alsaaudio" library then you can declare:
   * Audio: python library to use **alsaaudio** or **pyaudio** (default), **server** reserved for client/server future dev.
   * Card: [for alsaaudio only] card name for capture. Default is 'External'.
   * PeriodSize: [for alsaaudio only] period size for capture. Default is '128'.
   
+<div id='id-section4'/>
 ## [Email] ##
 The 'supersid_plot.py' program can send you an email with the attached plot as a PDF file. In order to use this feature, you must provide the information necessary to contact your email server as well as which email to use.
   * from_mail: sender's emai
@@ -72,3 +75,11 @@ The 'supersid_plot.py' program can send you an email with the attached plot as a
   * email_login: [optional] if your server requires a login for identification
   * email_password: [optional] if your server requires a password for identification
   
+<div id='id-section5'/>
+## [FTP] ##
+Group all parameters to send data to an FTP server i.e. Standford data repository.
+  * automatic_upload: [yes/no] if set to 'yes' then trigger the FTP data upload
+  * ftp_server: URL of the server (sid-ftp.stanford.edu)
+  * ftp_directory: target folder on the FTP server where files should be written (on Standford's server: /incoming/SuperSID/NEW/)
+  * local_tmp: local temporary directpry used to write the files before their upload
+  * call_signs: list of recorded stations to upload. Not all recorded stations might be of interrest: list only the most relevant one(s).

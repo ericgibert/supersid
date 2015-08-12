@@ -13,6 +13,8 @@ Note: len(config.stations) == config['number_of_stations'] - sanity check -
 #   Change Log:
 #   20140816:
 #   - define CONSTANTS to ensure universal usage
+#   20150801:
+#   - add the [FTP] section
 #
 from __future__ import print_function   # use the new Python 3 'print' function
 import os.path
@@ -40,7 +42,7 @@ class Config(dict):
         :param filename: superSID .cfg file
         :return: nothing
         """
-        self.version = "1.3.1 20140816"
+        self.version = "1.4 20150801"
         dict.__init__(self)         # Config objects are dictionaries
         self.config_ok = True       # Parsing success/failure
         self.config_err = ""        # Parsing failure error message
@@ -76,10 +78,6 @@ class Config(dict):
                                     ('time_zone',  str, None),
                                     ('monitor_id', str, None),
                                     ('log_type',  str, None),           # 'filtered' or 'raw'
-                                    # # ftp legacy
-                                    # ('automatic_upload',  str, "no"),
-                                    # ('ftp_server',  str, ""),
-                                    # ('ftp_directory', str, ""),
 
                                     ('audio_sampling_rate', int, None),
                                     ('log_interval', int, None), 
@@ -104,8 +102,8 @@ class Config(dict):
                                     ("email_password", str, "")         # if your server requires a passwrd
                                     ),
                       "FTP":       (('automatic_upload',  str, "no"),   # yes/no: to upload the file to the remote FTP server
-                                    ('ftp_server',  str, ""),               # address of the server like sid-ftp.stanford.edu
-                                    ('ftp_directory', str, ""),             # remote target directory to write the files
+                                    ('ftp_server',  str, ""),           # address of the server like sid-ftp.stanford.edu
+                                    ('ftp_directory', str, ""),         # remote target directory to write the files
                                     ('local_tmp', str, ""),             # local tmp folder to generate files before upload
                                     ('call_signs', str, "")             # list of stations to upload (sub-set of [stations])
                                     ),

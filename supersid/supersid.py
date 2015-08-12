@@ -47,7 +47,7 @@ class SuperSID():
     running = False  # class attribute to indicate if the SID application is running
 
     def __init__(self, config_file='', read_file=None):
-        self.version = "EG 1.3.2 20150421"
+        self.version = "EG 1.4 20150801"
         self.timer = None
         self.sampler = None
         self.viewer = None

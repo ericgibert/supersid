@@ -10,6 +10,10 @@
  Created:     13-10-2012
  Copyright:   (c) eric 2012
  Licence:     Open to All
+
+    20150801:
+    - truncate ['utc_starttime'] to 19 chars
+
 """
 from __future__ import print_function   # use the new Python 3 'print' function
 from datetime import datetime, timedelta
@@ -48,7 +52,7 @@ class SidFile():
         Note: only one or the other parameter should be given. If both are given
         then 'filename' is taken and 'sid_params' is ignored.
         """
-        self.version = "1.3.1 20131118"
+        self.version = "1.4 20150801"
         self.filename = filename
         self.sid_params = sid_params    # dictionary of all header pairs
         self.is_extended = False
@@ -240,16 +244,6 @@ class SidFile():
             return self.data[idx]
         except ValueError:
             return []
-
-        #if stationId not in self.stations:
-        #    return []
-        #elif self.isSuperSID:
-        #    idx = self.stations.index(stationId)
-        #    ###return self.data[:,idx]
-        #    return self.data[idx]
-        #else:
-        #    ###return self.data
-        #    return self.data[0]
 
     def get_station_index(self, station):
         """Returns the index of the station accordingly to the parameter station type"""

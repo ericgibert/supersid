@@ -6,7 +6,9 @@
 #   Change tracking:
 #   20140816:
 #   - add config.CONSTANT
-#   - fix 'raw_input' to ensure code works on both Python 2 nd 3
+#   - fix 'raw_input' to ensure code works on both Python 2 and 3
+#   20150801:
+#   - truncate sid_params['utc_starttime'] to 19 first chars
 from __future__ import print_function   # use the new Python 3 'print' function
 from os import path
 try:
@@ -30,7 +32,7 @@ class Logger():
         :param read_file: optional file to read in memory at launch if given by user on the command line
         :return: nothing but self
         """
-        self.version = "1.3.1 20140816"
+        self.version = "1.4 20150801"
         self.controller = controller
         self.config = controller.config
         # first create in memory buffers

@@ -1,6 +1,8 @@
 """
 tkSidViewer class implements a graphical user interface for SID based on tkinter
 """
+# created on 20150421
+# first official release 20150801
 from __future__ import print_function
 import matplotlib
 # matplotlib.use('TkAgg')
@@ -27,7 +29,7 @@ class tkSidViewer():
         Creation of the Frame with menu and graph display using matplotlib
         """
         matplotlib.use('TkAgg')
-        self.version = "1.3.2 20150421 (tk)"
+        self.version = "1.4 20150801 (tk)"
         self.controller = controller  # previously referred as 'parent'
         self.tk_root = tk.Tk()
         self.tk_root.title("supersid @ " + self.controller.config['site_name'])

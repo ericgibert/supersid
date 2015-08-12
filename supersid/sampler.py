@@ -17,6 +17,8 @@
      - capture_1sec: obtain one second of sound and return as an array of 'audio_sampling_rate' integers
      - close: close the 'device'
 """
+# 20150801:
+#   - modify the __main__ to help debugging the soundcard
 from __future__ import print_function   # use the new Python 3 'print' function
 from struct import unpack as st_unpack
 from numpy import array
@@ -115,7 +117,7 @@ except ImportError:
 class Sampler():
     """Sampler will gather sound capture from various devices: sound cards or remote server"""
     def __init__(self, controller, audio_sampling_rate = 96000, NFFT = 1024):
-        self.version = "1.3.1 20140816"
+        self.version = "1.4 20150801"
         self.controller = controller
         self.scaling_factor = controller.config['scaling_factor']
         
