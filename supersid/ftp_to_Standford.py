@@ -93,7 +93,7 @@ if __name__ == '__main__':
             print("Error:", input_file, "does not exist.")
 
     # now sending the files by FTP
-    if cfg['automatic_upload']=='yes':
+    if files_to_send and cfg['automatic_upload']=='yes'
         print("Opening FTP session with", cfg['ftp_server'])
         data = []
 
