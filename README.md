@@ -5,24 +5,25 @@ Cross-platform Sudden Ionospheric Disturbances (SID) monitor
 
 Objectives
 ----------
-Monitoring the Sudden Ionospheric Disturbances (SID) is an easy yet exciting Home Based Radio Astronomy Project. This project is an implementation of [Stanford SOLAR Center’s SuperSID][Standford] .
+Monitoring the Sudden Ionospheric Disturbances (SID) is an easy yet exciting Home Based Radio Astronomy Project. This project is an implementation of [Stanford SOLAR Center’s SuperSID][Standford].
 
-The default SuperSID project uses a PC on Windows OS to record the pre-amplified signal received by the antenna with a “SuperSID Monitor”. 
+The default SuperSID project software runs on Windows OS to record the pre-amplified signal received by the antenna with a “SuperSID Monitor”. 
 
-This *SuperSID* project is a similar but simpler implementation on Linux whithout the “SuperSID Monitor”. This *SuperSID* includes a text mode which allows to turn your Raspberry Pi in a SID monitor (tested on Raspbian Wheezy & Fedora mix distro).
+This *SuperSID* project is an Open Source implementation that runs on Linux and Windows. The scripts are executable by Python 2.7 and Python 3, at your choice.
+
+This *SuperSID* includes a text mode which allows to turn your Raspberry Pi in a SID monitor (tested on Raspbian Wheezy & Pidora distro). TkInter in the default GUI to ensure Python 2 and 3 compatibility (but wxPython is still supported for Python 2 only).
 
 
-|Original Project  |RasPi-SID Project
-|------------------|-----------------------
-|Desktop/Laptop PC |Raspberry Pi (512Mb)
-|Windows OS        |Linux OS
+|Original Project  |Open Source SuperSID Project
+|------------------|--------------------------------------
+|Desktop/Laptop PC |Desktop/Laptop PC/Raspberry Pi (512Mb)
+|Windows OS        |Linux and Windows OS
+|Python 2.7        |Python 2.7 or 3.3+
 |Any Soundcard     |USB External Soundcard
 |SuperSID Monitor pre-amp.  |Direct connection to External Soundcard
 
 Other improvements
 ------------------
-
-Both Python 2 and 3 are supported. Note that currently only the *text* viewer can be used with Python 3 as wxPython is [not *yet* ported to Python 3][Phoenix].
 
 supersid.py:
  - More options in the [configuration file (.cfg)] (docs/ConfigHelp.md)
@@ -37,4 +38,4 @@ supersid_plot.py:
  - Can send the graph as PDF by email
 
 [Standford]: http://solar-center.stanford.edu/SID/sidmonitor/
-[Phoenix]: http://wxpython.org/Phoenix/docs/html/index.html
+
