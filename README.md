@@ -32,6 +32,8 @@ supersid.py:
  - New extended file format with time stamp to the 1.000th of second
  - *sidfile.py* can be used as a utility to manipualte SID files
 
+![tkgui_screenshot01](https://cloud.githubusercontent.com/assets/5303792/9287125/7e65cb9c-4339-11e5-9f5b-4c740b8e8d21.png)
+
 supersid_plot.py:
  - Accepts multiple files to display up to 10 days in continue (wildcards possible)
  - Can connect to NOAA to draw the day's events
