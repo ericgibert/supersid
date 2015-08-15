@@ -37,5 +37,7 @@ supersid_plot.py:
  - Can connect to NOAA to draw the day's events
  - Can send the graph as PDF by email
 
+![figure_20150809](https://cloud.githubusercontent.com/assets/5303792/9287048/5245b20a-4336-11e5-916b-5835bccaf601.png)
+
 [Standford]: http://solar-center.stanford.edu/SID/sidmonitor/
 
