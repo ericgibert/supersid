@@ -1,10 +1,8 @@
-SuperSID on Windows
-===================
+# SuperSID on Windows
 
 If you want to use this version, you need to install the necessary envrionment first.
 
-Example of installation for Python 3.4.3
-----------------------------------------
+## Example of installation for Python 3.4.3
 
 1. Download these 3 files:
   1.  python-3.4.3.msi from [Python site](http://python.org)
@@ -16,8 +14,7 @@ Example of installation for Python 3.4.3
 
 As you can notice, **wxPython** is absent as not ported on Python 3. Instead use the TkInter GUI by indicating `viewer=tk` in your .cfg file (cf below paragraph).
 
-SuperSID installtion
---------------------
+## SuperSID installtion
 
 Once the environment is setup, fetch the application:
  - You can simply go to https://github.com/ericgibert/supersid and click on the "Download ZIP" button
@@ -28,8 +25,7 @@ Once the environment is setup, fetch the application:
  - In the future, move to *supersid* directory and issue the command ````git pull```` to download the latest updates
 
 
-Adapting your .cfg file:
-------------------------
+## Adapting your .cfg file
 
 For Graphic User Interface, use supersid\Config\supersid.tk.cfg :
 ````
