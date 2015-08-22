@@ -23,18 +23,17 @@ Here are the programs for a Windows 32bits and Python 3.3 in order of installati
 `
 
 For Python 3.4.3:
-a) Download these 3 files:
-`
-1.  python-3.4.3.msi from [Python site](http://python.org)
-2.  numpy-1.9.2+mkl-cp34-none-win32.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
-3.  pyaudio-0.2.8.py33.exe from http://people.csail.mit.edu/hubert/pyaudio/#downloads
-`
-b)  Install `numpy` with `C:\Python34\Scripts\pip.exe install numpy-1.9.2+mkl-cp34-none-win32.whl`
-c)  Install `matplotlib` and its dependencies with `C:\Python34\Scripts\pip.exe install matplotlib`
-d)  Run `pyaudio-0.2.8.py33.exe` and select `Python Version 3.4 (found in registry)` 
+
+1. Download these 3 files:
+  1.  python-3.4.3.msi from [Python site](http://python.org)
+  2.  numpy-1.9.2+mkl-cp34-none-win32.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
+  3.  pyaudio-0.2.8.py33.exe from http://people.csail.mit.edu/hubert/pyaudio/#downloads
+2.  Install *numpy* with `C:\Python34\Scripts\pip.exe install numpy-1.9.2+mkl-cp34-none-win32.whl`
+3.  Install *matplotlib* and its dependencies with `C:\Python34\Scripts\pip.exe install matplotlib`
+4.  Run *pyaudio-0.2.8.py33.exe* and select `Python Version 3.4 (found in registry)` 
 
 
-As you can notice, **wxPython** is absent as not yet ported on Python 3. Instead use the TkInter GUI by indicating `viewer=tk` in your .cfg file.
+As you can notice, **wxPython** is absent as not ported on Python 3. Instead use the TkInter GUI by indicating `viewer=tk` in your .cfg file (cf below paragraph).
 
 Once the environment is setup, fetch the application:
  - You can simply go to https://github.com/ericgibert/supersid and click on the "Download ZIP" button
