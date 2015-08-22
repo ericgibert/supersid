@@ -5,10 +5,11 @@ If you want to use this version, you need to install the necessary envrionment f
 ## Example of installation for Python 3.4.3
 
 1. Download these 3 files:
-  1.  python-3.4.3.msi from [Python site](http://python.org)
+  1.  python-3.4.3.msi from the official [Python site](http://python.org)
   2.  numpy-1.9.2+mkl-cp34-none-win32.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
   3.  PyAudio-0.2.8-cp34-none-win32.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
-2.  Install *numpy* with `C:\Python34\Scripts\pip.exe install numpy-1.9.2+mkl-cp34-none-win32.whl`
+2.  Execute *python-3.4.3.msi* to install *Python 3.4*
+3.  Install *numpy* with `C:\Python34\Scripts\pip.exe install numpy-1.9.2+mkl-cp34-none-win32.whl`
 3.  Install *matplotlib* and its dependencies with `C:\Python34\Scripts\pip.exe install matplotlib`
 4.  Install *PyAudio* with `C:\Python34\Scripts\pip.exe install PyAudio-0.2.8-cp34-none-win32.whl`
 
