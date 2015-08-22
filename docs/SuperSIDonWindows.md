@@ -12,14 +12,14 @@ If you want to use this version, you need to install the necessary envrionment f
 
 Here are the programs for a Windows 32bits and Python 3.3:
 `
-  31-Aug-2013  05:00 PM        20,238,336 python-3.3.2.msi
-  31-Aug-2013  04:49 PM           356,332 pyaudio-0.2.7.py33.exe
-  31-Aug-2013  04:48 PM         5,861,646 matplotlib-1.3.0.win32-py3.3.exe
-  03-Sep-2013  10:28 PM           310,746 python-dateutil-2.1.win32-py3.3.e
-  03-Sep-2013  10:29 PM           719,292 pytz-2013b.win32-py3.3.exe
-  03-Sep-2013  10:29 PM           198,188 six-1.4.1.win32-py3.3.exe
-  03-Sep-2013  10:30 PM           226,588 pyparsing-2.0.1.win32-py3.3.exe
-  03-Sep-2013  10:34 PM        11,453,891 numpy-MKL-1.7.1.win32-py3.3.exe
+-  31-Aug-2013  05:00 PM        20,238,336 python-3.3.2.msi
+-  31-Aug-2013  04:49 PM           356,332 pyaudio-0.2.7.py33.exe
+-  31-Aug-2013  04:48 PM         5,861,646 matplotlib-1.3.0.win32-py3.3.exe
+-  03-Sep-2013  10:28 PM           310,746 python-dateutil-2.1.win32-py3.3.e
+-  03-Sep-2013  10:29 PM           719,292 pytz-2013b.win32-py3.3.exe
+-  03-Sep-2013  10:29 PM           198,188 six-1.4.1.win32-py3.3.exe
+-  03-Sep-2013  10:30 PM           226,588 pyparsing-2.0.1.win32-py3.3.exe
+-  03-Sep-2013  10:34 PM        11,453,891 numpy-MKL-1.7.1.win32-py3.3.exe
 `
 
 As you can notice, **wxPython** is absent as not yet ported on Python 3.
