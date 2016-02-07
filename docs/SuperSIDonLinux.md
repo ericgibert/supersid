@@ -60,8 +60,8 @@ Python 3:
  Else *a la mano*:
 ````
  - yum install 'pkgconfig(alsa)'
- - go to http://sourceforge.net/projects/pyalsaaudio/files/
- - download and unpack the latest pyalsaaudio-___.tar.gz
+ - go to https://pypi.python.org/pypi/pyalsaaudio
+ - download and unpack the latest pyalsaaudio-___.tar.gz  (my current version: 0.8.2)
  - change to this directory
  - as *root* or with *sudo*:  python3 setup.py install 
 ````
