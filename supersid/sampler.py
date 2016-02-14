@@ -27,6 +27,11 @@ audioModule=[]
 try:
     import alsaaudio  # for Linux direct sound capture
     audioModule.append("alsaaudio")
+    # pip3 install setuptools
+    # dnf install python3-cffi
+    # dnf install portaudio
+    # pip3 install sounddevice
+
     
     class alsaaudio_soundcard():
         def __init__(self, card, periodsize, audio_sampling_rate):
@@ -39,7 +44,7 @@ try:
             self.inp.setperiodsize(periodsize)
             self.inp.setformat(self.FORMAT)
             self.name = "alsaaudio sound card capture on " + card
-    
+
         def capture_1sec(self):
             raw_data = b''
             while len(raw_data) < 2 * self.audio_sampling_rate:
@@ -53,11 +58,49 @@ try:
         def info(self):
             print(self.name, "at", self.audio_sampling_rate,"Hz")
             one_sec = self.capture_1sec()
-            print(len(one_sec),"bytes read from", self.name)
+            print(len(one_sec),"bytes read from", self.name, type(one_sec))
+            print(one_sec[:10])
 
         
 except ImportError:
     pass
+
+
+try:
+    import sounddevice  # for Linux http://python-sounddevice.readthedocs.org
+    audioModule.append("sounddevice")
+
+    class sounddevice_soundcard():
+        def __init__(self, device, audio_sampling_rate):
+            self.audio_sampling_rate = audio_sampling_rate
+            sounddevice.default.samplerate = audio_sampling_rate
+            sounddevice.default.device = int(device)
+            sounddevice.default.channels = 1
+            self.name = "sounddevice capture on device " + str(device)
+
+        def capture_1sec(self):
+            # duration = 1 sec hence   1 x self.audio_sampling_rate = self.audio_sampling_rate
+            one_sec_record = b''
+            try:
+                one_sec_record = sounddevice.rec(self.audio_sampling_rate)
+            except sounddevice.PortAudioError as err:
+                print("Error reading device", self.name)
+                print(err)
+            return one_sec_record
+
+        def close(self):
+            pass  # to check later if there is something to do
+
+        def info(self):
+            print(self.name, "at", self.audio_sampling_rate,"Hz")
+            one_sec = self.capture_1sec()
+            print(len(one_sec),"bytes read from", self.name, type(one_sec))
+            print(one_sec[:10])
+
+
+except ImportError:
+    pass
+
 
 try:
     import pyaudio  # for Linux with jackd OR windows
@@ -76,7 +119,7 @@ try:
                                           input = True,
                                           frames_per_buffer = self.CHUNK)
             self.name = "pyaudio sound card capture"
-            
+
         def capture_1sec(self):
             raw_data = b''.join(self.capture(1))  # self.pa_stream.read(self.audio_sampling_rate)
             unpacked_data = st_unpack("{}h".format(self.audio_sampling_rate), raw_data)
@@ -117,17 +160,19 @@ except ImportError:
 class Sampler():
     """Sampler will gather sound capture from various devices: sound cards or remote server"""
     def __init__(self, controller, audio_sampling_rate = 96000, NFFT = 1024):
-        self.version = "1.4 20150801"
+        self.version = "1.4 20160207"
         self.controller = controller
         self.scaling_factor = controller.config['scaling_factor']
         
         self.audio_sampling_rate = audio_sampling_rate
         self.NFFT = NFFT
         self.sampler_ok = True
-        
+
         try:
             if controller.config['Audio'] == 'pyaudio':
                 self.capture_device = pyaudio_soundcard(audio_sampling_rate)
+            elif controller.config['Audio'] == 'sounddevice':
+                self.capture_device = sounddevice_soundcard(controller.config['Card'], audio_sampling_rate)
             elif controller.config['Audio'] == 'alsaaudio':
                 self.capture_device = alsaaudio_soundcard(controller.config['Card'],
                                                           controller.config['PeriodSize'],
@@ -138,7 +183,11 @@ class Sampler():
         except:
             self.sampler_ok = False
             self.display_error_message("Could not open capture device. Please check your .cfg file or hardware.")
-            print (controller.config['Audio'])
+            print ("Error", controller.config['Audio'])
+            print("To debugg: remove the try/except clause to get detail on what exception is triggered.")
+
+        if self.sampler_ok:
+            print("-", self.capture_device.name)
 
     def set_monitored_frequencies(self, stations):
         self.monitored_bins = []
@@ -183,6 +232,22 @@ if __name__ == '__main__':
             except alsaaudio.ALSAAudioError as err:
                 print("! ERROR capturing sound on card", card)
                 print(err)
+
+    print("\n", "- "*60)
+
+    if 'sounddevice' in audioModule:
+        print(sounddevice.query_devices())
+        for device, card in enumerate(sounddevice.query_devices()):
+            # try:
+            print("Accessing", card['name'], "...")
+            for sampling_rate in [48000]:
+                sc = sounddevice_soundcard(device, sampling_rate)
+                sc.info()
+            # except alsaaudio.ALSAAudioError as err:
+            #     print("! ERROR capturing sound on card", card)
+            #     print(err)
+
+    print("\n", "- "*60)
 
     if 'pyaudio' in audioModule:
         sc = pyaudio_soundcard(48000)
