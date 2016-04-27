@@ -58,9 +58,9 @@ try:
         def info(self):
             print(self.name, "at", self.audio_sampling_rate,"Hz")
             one_sec = self.capture_1sec()
-            print(len(one_sec),"bytes read from", self.name, type(one_sec))
+            print(len(one_sec),"bytes read from", self.name, one_sec.shape)
             print(one_sec[:10])
-
+            print("Vector sum", one_sec.sum())
         
 except ImportError:
     pass
@@ -86,16 +86,20 @@ try:
             except sounddevice.PortAudioError as err:
                 print("Error reading device", self.name)
                 print(err)
-            return one_sec_record
+            return one_sec_record[0]
 
         def close(self):
             pass  # to check later if there is something to do
 
         def info(self):
             print(self.name, "at", self.audio_sampling_rate,"Hz")
-            one_sec = self.capture_1sec()
-            print(len(one_sec),"bytes read from", self.name, type(one_sec))
-            print(one_sec[:10])
+            try:
+                one_sec = self.capture_1sec()
+                print(len(one_sec),"bytes read from", self.name, one_sec.shape)
+                print(one_sec[:10])
+                print("Vector sum", one_sec.sum())
+            except IndexError:
+                print("Cannot read", self.name)
 
 
 except ImportError:
@@ -221,6 +225,7 @@ class Sampler():
         
 if __name__ == '__main__':
     print('Possible capture modules:', audioModule)
+    print("\nalsaaudio:")
 
     if 'alsaaudio' in audioModule:
         for card in alsaaudio.cards():
@@ -232,8 +237,11 @@ if __name__ == '__main__':
             except alsaaudio.ALSAAudioError as err:
                 print("! ERROR capturing sound on card", card)
                 print(err)
+    else:
+        print("not installed.")
 
     print("\n", "- "*60)
+    print("sounddevice:")
 
     if 'sounddevice' in audioModule:
         print(sounddevice.query_devices())
@@ -246,9 +254,14 @@ if __name__ == '__main__':
             # except alsaaudio.ALSAAudioError as err:
             #     print("! ERROR capturing sound on card", card)
             #     print(err)
+    else:
+        print("not installed.")
 
     print("\n", "- "*60)
+    print("pyaudio:")
 
     if 'pyaudio' in audioModule:
         sc = pyaudio_soundcard(48000)
         sc.info()
+    else:
+        print("not installed.")
