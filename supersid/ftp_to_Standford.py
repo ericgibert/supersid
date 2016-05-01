@@ -104,7 +104,7 @@ if __name__ == '__main__':
         for f in files_to_send:
             print("Sending", f)
             try:
-                ftp.storlines("STOR " + path.basename(f), open(f, "rt"))
+                ftp.storlines("STOR " + path.basename(f), open(f, "rb"))
             except ftplib.error_perm as err:
                 print("Error sending", path.basename(f), ":", err)
         ftp.quit()

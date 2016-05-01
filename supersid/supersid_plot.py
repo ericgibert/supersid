@@ -44,6 +44,7 @@ def sendMail(config, To_mail, msgBody, PDFfile):
        The plot (as PDF) attached"""
     senderEmail = config.get("from_mail","")
     mailserver = config.get("email_server","")
+    mailport = config.get("email_port", "")
     mailserveruser = config.get("email_login","")          # <-- set to None if no login required
     mailserverpasswd = config.get("email_password","")     # <-- set to None if no login required
 
@@ -70,7 +71,8 @@ def sendMail(config, To_mail, msgBody, PDFfile):
 
     # Establish an SMTP object by connecting to your mail server
     s = smtplib.SMTP()
-    s.connect(mailserver)
+    print("Connect to:", mailserver, mailport )
+    s.connect(mailserver, port=mailport)
     if mailserveruser: s.login(mailserveruser, mailserverpasswd)
     # Send the email - real from, real to, extra headers and content ...
     s.sendmail(senderEmail, To_mail, msg.as_string())
