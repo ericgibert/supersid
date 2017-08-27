@@ -53,10 +53,32 @@ Python 2:
  # yum/apt-get install python-alsaaudio
 ````
 Python 3:
- Try to install the package as your ditribution might offer it
+ Try to install the package as your distribution might offer it
 ````
  - dnf/yum/apt-get install python3-alsaaudio
 ````
+or
+````
+    #pip3 install pyalsaaudio
+
+````
+
+if you have:
+```
+alsaaudio.c:28:28: fatal error: alsa/asoundlib.h: No such file or directory
+     #include <alsa/asoundlib.h>
+                                ^
+    compilation terminated.
+    error: command 'gcc' failed with exit status 1
+
+````
+then this means that alsa-lib is not installed correctly.
+- On Debian/Ubuntu, install a package called libasound2-dev
+- On SuSe, you can probably `zypper install -C 'pkgconfig(alsa)'` (I think the -C is correct... for "capabilities")
+- On Fedora, it's `dnf/yum install 'pkgconfig(alsa)'`
+
+
+
  Else *a la mano*:
 ````
  - yum install 'pkgconfig(alsa)'
