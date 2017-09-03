@@ -90,7 +90,7 @@ class Plot_Gui(ttk.Frame):
         self.label=tk.Label(self.tk_root,
                             bd=1, relief=tk.SUNKEN, #anchor=tk.W,
                            textvariable=self.statusbar_txt,
-                           font=('arial', 12, 'normal'))
+                           font=('arial', 10, 'normal'), pady=5)
         self.statusbar_txt.set(", ".join(fig_title))
         self.label.pack(fill=tk.X)
 
