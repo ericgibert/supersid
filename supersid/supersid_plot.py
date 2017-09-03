@@ -116,7 +116,8 @@ class SUPERSID_PLOT():
                 filelist = (filelist, )
         filenames = []
         # use glob for one or more files
-        filenames.extend([a for a in itertools.chain.from_iterable([glob.glob(f) for f in filelist])])
+        filenames.extend([a for a in itertools.chain.from_iterable(
+                [glob.glob(os.path.expanduser(f)) for f in filelist])  ])
         #print (filenames)
 
         # plot's figure and axis
@@ -306,7 +307,7 @@ if __name__ == '__main__':
             for s in config.stations:
                 print("Station:", s)
     else:
-        config={}
+        config={ "site_name": ""}
     #print (config)
     if args.filename is None: # no --file option specified
         if len(unk) > 0:  # last non options arguments are assumed to be a list of file names
@@ -341,7 +342,15 @@ if __name__ == '__main__':
     
     if args.verbose:
         print("List of files:", filenames)
-        
-    do_main(filenames, showPlot = args.showPlot, eMail=args.email or config.get("to_mail", None), pdf=args.pdffilename, web = args.webData, config=config)
+
+    if filenames:
+        do_main(filenames,
+                showPlot = args.showPlot,
+                eMail=args.email or config.get("to_mail", None),
+                pdf=args.pdffilename,
+                web = args.webData,
+                config=config)
+    else:
+        parser.error("No file to plot found.")
 
 
