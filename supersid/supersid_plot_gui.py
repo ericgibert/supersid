@@ -103,7 +103,7 @@ class Plot_Gui(ttk.Frame):
         color_idx = 0
         self.daysList = set() # date of NOAA's pages already retrieved, prevent multiple fetch
         fig_title = []    # list of file names (w/o path and extension) as figure's title
-        self.max_data = None
+        self.max_data = -1.0
         # prepare the GUI framework
         self.fig = Figure(facecolor='beige')
         self.canvas = FigureCanvas(self.fig, master=self.tk_root)
@@ -122,6 +122,7 @@ class Plot_Gui(ttk.Frame):
             fig_title.append(os.path.basename(filename)[:-4])  # extension .csv assumed
             sid_file.XRAlist = get_NOAA_flares(sid_file)
             for station in set(sid_file.stations) - self.hidden_stations:
+                self.max_data = max(self.max_data, max(self.sid_files[0].data[0]))
                 print(sid_file.startTime, station)
                 # Does this station already have a color? if not, reserve one
                 if station not in self.colorStation:
@@ -131,7 +132,7 @@ class Plot_Gui(ttk.Frame):
                 self.graph.plot_date(sid_file.timestamp, sid_file.get_station_data(station), self.colorStation[station])
         # add the buttons to show/add a station's curve
         for s, c in self.colorStation.items():
-            btn_color = "white" if s in self.hidden_stations else self.COLOR[c[0]]
+            btn_color = self.COLOR[c[0]]
             station_button = tk.Button(self.tk_root, text=s,
                                        bg=btn_color, activebackground="white")
             station_button.configure(command=lambda s=s, b=station_button: self.on_click_station(s, b))
@@ -179,17 +180,16 @@ class Plot_Gui(ttk.Frame):
         for label in current_axes.xaxis.get_minorticklabels():
             label.set_fontsize(12 if len(self.daysList) == 1 else 8)
 
-        # add the lines marking the retrieved flares from NOAA
-        alternate = 0
-        if self.max_data is None:
-            self.max_data = max(self.sid_files[0].data[0])
+        # specific drawings for linked to each sid_file: flares and sunrise/sunset
+        bottom_max, top_max = current_axes.get_ylim()
         for sid_file in self.sid_files:
+            # for each flare from NOAA, draw the lines and box with flares intensity
             for eventName, BeginTime, MaxTime, EndTime, Particulars in sid_file.XRAlist:
                 self.graph.vlines([BeginTime, MaxTime, EndTime], 0, self.max_data,
                            color=['g', 'r', 'y'], linestyles='dotted')
-                self.graph.text(MaxTime, alternate * self.max_data, Particulars, horizontalalignment='center',
-                         bbox=dict(fill=True, alpha=0.5, facecolor='w'))
-                alternate = 0 if alternate == 1 else 1
+                self.graph.text(MaxTime, self.max_data + (top_max - self.max_data) / 4.0,
+                                Particulars, horizontalalignment='center',
+                                bbox=dict(fill=True, alpha=0.5, facecolor='w'))
             # draw the rectangles for rising and setting of the sun with astronomical twilight
             if sid_file.rising < sid_file.setting:
                 self.graph.axvspan(sid_file.startTime, sid_file.rising.datetime(),
