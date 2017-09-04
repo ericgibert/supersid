@@ -190,7 +190,7 @@ class Plot_Gui(ttk.Frame):
                 self.graph.text(MaxTime, alternate * self.max_data, Particulars, horizontalalignment='center',
                          bbox=dict(fill=True, alpha=0.5, facecolor='w'))
                 alternate = 0 if alternate == 1 else 1
-            # draw the lines for rising and setting of the sun with astronomical twilight
+            # draw the rectangles for rising and setting of the sun with astronomical twilight
             if sid_file.rising < sid_file.setting:
                 self.graph.axvspan(sid_file.startTime, sid_file.rising.datetime(),
                            facecolor='blue', alpha=0.1)
