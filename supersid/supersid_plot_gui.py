@@ -31,7 +31,7 @@ def get_NOAA_flares(sid_file):
       Returns the list of XRA events as
       [(eventName, BeginTime, MaxTime, EndTime, Particulars), ...]
     """
-    day = sid_file.sid_params["utc_starttime"][:10].replace("-", "")
+    day = sid_file.startTime.strftime('%Y%m%d')
     # ftp://ftp.swpc.noaa.gov/pub/indices/events/20141030events.txt
     NOAA_URL = 'ftp://ftp.swpc.noaa.gov/pub/indices/events/%sevents.txt' % (day)
     response, XRAlist = None, []
@@ -42,14 +42,14 @@ def get_NOAA_flares(sid_file):
         response = open("/home/eric/tmp/%sevents.txt" % day, "rb")
     except urllib.error.HTTPError as err:
         print(err, "\n", NOAA_URL)
-    if response:
+    else:
         for webline in response.read().splitlines():
             fields = str(webline, 'utf-8').split()  # Python 3: cast bytes to str then split
             if len(fields) >= 9 and not fields[0].startswith("#"):
                 if fields[1] == '+': fields.remove('+')
                 if fields[6] in ('XRA',):  # maybe other event types could be of interrest
-                    #     eventName,    BeginTime,    MaxTime,      EndTime,      Particulars
-                    msg = fields[0] + " " + fields[1] + " " + fields[2] + " " + fields[3] + " " + fields[8]
+                    #      eventName,    BeginTime,    MaxTime,      EndTime,      Particulars
+                    # msg = fields[0] + " " + fields[1] + " " + fields[2] + " " + fields[3] + " " + fields[8]
                     try:
                         btime = Tstamp(fields[1])  # 'try' necessary as few occurences of --:-- instead of HH:MM exist
                     except:
@@ -80,7 +80,7 @@ def m2yyyymmdd(x, i):
     y = t.year
     m = t.month
     d = t.day
-    return '%(y)04d-%(m)02d-%(d)02d --' % {'y': y, 'm': m, 'd': d}
+    return '%(y)04d-%(m)02d-%(d)02d    .' % {'y': y, 'm': m, 'd': d}
 
 
 class Plot_Gui(ttk.Frame):
@@ -117,10 +117,10 @@ class Plot_Gui(ttk.Frame):
         # Add data to the graph for each file
         for filename in sorted(file_list):
             sid_file = SidFile(filename)
+            sid_file.XRAlist = []
             self.sid_files.append(sid_file)
             self.daysList.add(sid_file.startTime)
             fig_title.append(os.path.basename(filename)[:-4])  # extension .csv assumed
-            sid_file.XRAlist = get_NOAA_flares(sid_file)
             for station in set(sid_file.stations) - self.hidden_stations:
                 self.max_data = max(self.max_data, max(self.sid_files[0].data[0]))
                 print(sid_file.startTime, station)
@@ -137,18 +137,25 @@ class Plot_Gui(ttk.Frame):
                                        bg=btn_color, activebackground="white")
             station_button.configure(command=lambda s=s, b=station_button: self.on_click_station(s, b))
             station_button.pack(side='left', padx=1, pady=1)
+
+        noaa_button = tk.Button(self.tk_root, text="NOAA", command=self.on_click_noaa)
+        noaa_button.pack(side='left', padx=1, pady=1)
         # other GUI items
         self.statusbar_txt = tk.StringVar()
         self.label=tk.Label(self.tk_root,
                             bd=1, relief=tk.SUNKEN, #anchor=tk.W,
-                           textvariable=self.statusbar_txt,
-                           font=('arial', 10, 'normal'), pady=5)
+                            textvariable=self.statusbar_txt,
+                            font=('arial', 10, 'normal'), pady=5)
         self.statusbar_txt.set(", ".join(fig_title))
         self.label.pack(fill=tk.X)
 
         self.calc_ephem()  # calculate the sun rise/set for each file
         self.show_figure() # add other niceties and show the plot
 
+    def on_click_noaa(self):
+        for sid_file in self.sid_files:
+            sid_file.XRAlist = get_NOAA_flares(sid_file)
+        self.update_graph()
 
     def on_click_station(self, station, button):
         """Invert the color of the button and hide/draw the corresponding graph"""
@@ -206,11 +213,11 @@ class Plot_Gui(ttk.Frame):
         # Redraw the selected stations on a clear graph
         self.fig.clear()
         self.graph = self.fig.add_subplot(111)
-        for sFile in self.sid_files:
-            for station in set(sFile.stations) - self.hidden_stations:
-                print(sFile.startTime, station)
+        for sid_file in self.sid_files:
+            for station in set(sid_file.stations) - self.hidden_stations:
+                print(sid_file.startTime, station)
                 # Add points to the plot
-                self.graph.plot_date(sFile.timestamp, sFile.get_station_data(station), self.colorStation[station])
+                self.graph.plot_date(sid_file.timestamp, sid_file.get_station_data(station), self.colorStation[station])
         self.show_figure()
 
     def calc_ephem(self):
