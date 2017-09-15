@@ -38,10 +38,12 @@ def get_NOAA_flares(sid_file):
     Tstamp = lambda HHMM: datetime(year=int(day[:4]), month=int(day[4:6]), day=int(day[6:8]),
                                    hour=int(HHMM[:2]), minute=int(HHMM[2:]))
     try:
-        # response = urllib.request.urlopen(NOAA_URL)
-        response = open("/home/eric/tmp/%sevents.txt" % day, "rb")
-    except urllib.error.HTTPError as err:
-        print(err, "\n", NOAA_URL)
+        response = urllib.request.urlopen(NOAA_URL)
+        # response = open("/home/eric/tmp/%sevents.txt" % day, "rb")
+    except (urllib.error.HTTPError, urllib.error.URLError) as err:
+        print("Cannot retrieve the file", '%sevents.txt' % (day))
+        print("from URL:", NOAA_URL)
+        print(err, "\n")
     else:
         for webline in response.read().splitlines():
             fields = str(webline, 'utf-8').split()  # Python 3: cast bytes to str then split
