@@ -12,60 +12,17 @@
 
 """
 import os.path
-from datetime import datetime
 import argparse
-import urllib.request, urllib.error
 import tkinter as tk
 from tkinter import ttk
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 from matplotlib.ticker import FuncFormatter as ff
-from sidfile import SidFile
 import ephem
 
-def get_NOAA_flares(sid_file):
-    """
-      Get the XRA data from NOAA website
-      (Used to draw corresponding lines on the plot)
-      Returns the list of XRA events as
-      [(eventName, BeginTime, MaxTime, EndTime, Particulars), ...]
-    """
-    day = sid_file.startTime.strftime('%Y%m%d')
-    # ftp://ftp.swpc.noaa.gov/pub/indices/events/20141030events.txt
-    NOAA_URL = 'ftp://ftp.swpc.noaa.gov/pub/indices/events/%sevents.txt' % (day)
-    response, XRAlist = None, []
-    Tstamp = lambda HHMM: datetime(year=int(day[:4]), month=int(day[4:6]), day=int(day[6:8]),
-                                   hour=int(HHMM[:2]), minute=int(HHMM[2:]))
-    try:
-        response = urllib.request.urlopen(NOAA_URL)
-        # response = open("/home/eric/tmp/%sevents.txt" % day, "rb")
-    except (urllib.error.HTTPError, urllib.error.URLError) as err:
-        print("Cannot retrieve the file", '%sevents.txt' % (day))
-        print("from URL:", NOAA_URL)
-        print(err, "\n")
-    else:
-        for webline in response.read().splitlines():
-            fields = str(webline, 'utf-8').split()  # Python 3: cast bytes to str then split
-            if len(fields) >= 9 and not fields[0].startswith("#"):
-                if fields[1] == '+': fields.remove('+')
-                if fields[6] in ('XRA',):  # maybe other event types could be of interrest
-                    #      eventName,    BeginTime,    MaxTime,      EndTime,      Particulars
-                    # msg = fields[0] + " " + fields[1] + " " + fields[2] + " " + fields[3] + " " + fields[8]
-                    try:
-                        btime = Tstamp(fields[1])  # 'try' necessary as few occurences of --:-- instead of HH:MM exist
-                    except:
-                        pass
-                    try:
-                        mtime = Tstamp(fields[2])
-                    except:
-                        mtime = btime
-                    try:
-                        etime = Tstamp(fields[3])
-                    except:
-                        etime = mtime
-                    XRAlist.append((fields[0], btime, mtime, etime, fields[8]))  # as a tuple
-    return XRAlist
+from sidfile import SidFile
+from noaa_flares import NOAA_flares
 
 
 def m2hm(x, i):
@@ -103,7 +60,7 @@ class Plot_Gui(ttk.Frame):
         self.tk_root.title('SuperSID Plot')
         color_list = "".join(self.COLOR) # one color per station
         color_idx = 0
-        self.daysList = set() # date of NOAA's pages already retrieved, prevent multiple fetch
+        self.daysList = {} # date of NOAA's data already retrieved, prevent multiple fetch
         fig_title = []    # list of file names (w/o path and extension) as figure's title
         self.max_data = -1.0
         # prepare the GUI framework
@@ -119,10 +76,10 @@ class Plot_Gui(ttk.Frame):
         # Add data to the graph for each file
         for filename in sorted(file_list):
             sid_file = SidFile(filename)
-            sid_file.XRAlist = []
+            sid_file.XRAlist = []   # list will be populated if the user click on 'NOAA' button
             self.sid_files.append(sid_file)
-            self.daysList.add(sid_file.startTime)
-            fig_title.append(os.path.basename(filename)[:-4])  # extension .csv assumed
+            self.daysList[sid_file.startTime] = []
+            fig_title.append(os.path.basename(filename)[:-4])  # assumed extension .csv removed
             for station in set(sid_file.stations) - self.hidden_stations:
                 self.max_data = max(self.max_data, max(self.sid_files[0].data[0]))
                 print(sid_file.startTime, station)
@@ -156,7 +113,15 @@ class Plot_Gui(ttk.Frame):
 
     def on_click_noaa(self):
         for sid_file in self.sid_files:
-            sid_file.XRAlist = get_NOAA_flares(sid_file)
+            if sid_file.XRAlist:
+                sid_file.XRAlist = []  # no longer to be displayed
+            elif self.daysList[sid_file.startTime]:
+                sid_file.XRAlist = self.daysList[sid_file.startTime]
+            else:
+                nf = NOAA_flares(sid_file.startTime)
+                nf.print_XRAlist()
+                self.daysList[sid_file.startTime] = nf.XRAlist
+                sid_file.XRAlist = self.daysList[sid_file.startTime]
         self.update_graph()
 
     def on_click_station(self, station, button):
@@ -187,7 +152,7 @@ class Plot_Gui(ttk.Frame):
             # label.set_horizontalalignment='left'
 
         for label in current_axes.xaxis.get_minorticklabels():
-            label.set_fontsize(12 if len(self.daysList) == 1 else 8)
+            label.set_fontsize(12 if len(self.daysList.keys()) == 1 else 8)
 
         # specific drawings for linked to each sid_file: flares and sunrise/sunset
         bottom_max, top_max = current_axes.get_ylim()
