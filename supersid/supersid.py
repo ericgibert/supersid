@@ -56,7 +56,7 @@ class SuperSID():
         print("Reading supersid.cfg ...", end='')
         # this script accepts a .cfg file as optional argument else we default
         # so that the "historical location" or the local path are explored
-        self.config = Config(config_file or "supersid.cfg")
+        self.config = Config(os.path.expanduser(config_file) or "supersid.cfg")
         # once the .cfg read, some sanity checks are necessary
         self.config.supersid_check()
         if not self.config.config_ok:

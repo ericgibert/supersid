@@ -1,8 +1,11 @@
 """
 tkSidViewer class implements a graphical user interface for SID based on tkinter
-"""
 # created on 20150421
 # first official release 20150801
+
+2017/09/01: add vertical lines on the plot for each monitored station
+
+"""
 from __future__ import print_function
 import matplotlib
 # matplotlib.use('TkAgg')
@@ -29,7 +32,7 @@ class tkSidViewer():
         Creation of the Frame with menu and graph display using matplotlib
         """
         matplotlib.use('TkAgg')
-        self.version = "1.4 20150801 (tk)"
+        self.version = "1.4 20170920 (tk)"
         self.controller = controller  # previously referred as 'parent'
         self.tk_root = tk.Tk()
         self.tk_root.title("supersid @ " + self.controller.config['site_name'])
@@ -99,6 +102,14 @@ class tkSidViewer():
         except RuntimeError as err_re:
             print("Warning:", err_re)
             Pxx, freqs = None, None
+        else:
+            bottom_max, top_max = self.axes.get_ylim()
+            for s in self.controller.config.stations:
+                freq = int(s['frequency'])
+                self.axes.axvline(x=freq, color='r')
+                self.axes.text(freq, top_max * 0.9, s['call_sign'],
+                                horizontalalignment='center',
+                                bbox={'facecolor': 'w', 'alpha': 0.5, 'fill': True})
         return Pxx, freqs
 
     def refresh_psd(self, z=None):

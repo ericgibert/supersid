@@ -216,7 +216,7 @@ class SUPERSID_PLOT():
                 plt.vlines( [BeginTime, MaxTime, EndTime], 0, maxData,
                             color=['g','r','y'], linestyles='dotted')
                 plt.text(MaxTime, alternate * maxData, Particulars, horizontalalignment='center',
-                         bbox=dict(fill=True, alpha=0.5, facecolor='w'))
+                         bbox={'facecolor': 'w', 'alpha': 0.5, 'fill': True})
                 alternate = 0 if alternate==1 else 1
 
 
