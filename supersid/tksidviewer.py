@@ -87,7 +87,7 @@ class tkSidViewer():
 
     def close(self, force_close=True):
         if not force_close and MessageBox.askyesno("Confirm exit", "Are you sure you want to exit SuperSID?"):
-            self.tk_root.quit()
+            self.tk_root.destroy()
 
     def status_display(self, message, level=0, field=0):
         """update the main frame by changing the message in status bar"""

@@ -184,10 +184,11 @@ class Sampler():
             else:
                 self.display_error_message("Unknown audio module:" + controller.config['Audio'])
                 self.sampler_ok = False
-        except:
+        except Exception as err:
             self.sampler_ok = False
             self.display_error_message("Could not open capture device. Please check your .cfg file or hardware.")
             print ("Error", controller.config['Audio'])
+            print(err)
             print("To debugg: remove the try/except clause to get detail on what exception is triggered.")
 
         if self.sampler_ok:

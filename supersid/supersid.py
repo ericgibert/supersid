@@ -27,17 +27,6 @@ from sidtimer import SidTimer
 from sampler import Sampler
 from config import Config
 from logger import Logger
-from textsidviewer import textSidViewer
-from tksidviewer import tkSidViewer
-# special case: 'wx' module might not be installed (text mode only) or even available (python 3)
-try:
-    from wxsidviewer import wxSidViewer
-    wx_imported = True
-except ImportError:
-    print("'wx' module not imported.")
-    wx_imported = False
-
-
 
 class SuperSID():
     '''
@@ -73,14 +62,23 @@ class SuperSID():
 
         # Create the viewer based on the .cfg specification (or set default):
         # Note: the list of Viewers can be extended provided they implement the same interface
-        if self.config['viewer'] == 'wx' and wx_imported:
+        if self.config['viewer'] == 'wx':
             # GUI Frame to display real-time VLF Spectrum based on wxPython
-            self.viewer = wxSidViewer(self)
+            # # special case: 'wx' module might not be installed (text mode only) nor even available (python 3)
+            try:
+                from wxsidviewer import wxSidViewer
+                self.viewer = wxSidViewer(self)
+                wx_imported = True
+            except ImportError:
+                print("'wx' module not imported.")
+                wx_imported = False
         elif self.config['viewer'] == 'tk':
             # GUI Frame to display real-time VLF Spectrum based on tkinter (python 2 and 3)
+            from tksidviewer import tkSidViewer
             self.viewer = tkSidViewer(self)
         elif self.config['viewer'] == 'text':
             # Lighter text version a.k.a. "console mode"
+            from textsidviewer import textSidViewer
             self.viewer = textSidViewer(self)
         else:
             print("ERROR: Unknown viewer", sid.config['viewer'])
