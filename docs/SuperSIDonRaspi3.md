@@ -28,6 +28,43 @@ Virtualenv management for Python:
 3) Installing SuperSID
 ----------------------
 
+### 3.1) Global installation
+
+This Raspi 3 is dedicated to SuperSid or you do not plan to mix various libraries: install at system level all the libraries.
+
+````
+    sudo apt-get install python3-matplotlib
+    sudo apt-get install libasound2-dev
+
+    sudo pip3 install pyalsaaudio
+
+````
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### 3.1) optional virtualenv
 
 This step is optional. Creating your own environment allows to install libraries in all freedom,
