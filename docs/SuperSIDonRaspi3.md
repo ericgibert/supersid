@@ -4,7 +4,7 @@ SuperSID on Raspberry Pi 3
 1) Preparation
 --------------
 
-Latest image downloaded as .ZIP: 2017-09-07-raspbian-stretch.zip
+Latest image downloaded as .ZIP: 2019-09-26-raspbian-buster.zip
 Download and use the easy tool to write this image *etcher*. Highly recommended.
 Boot on the new micro-SD card, follow normal process for any fresh system install.\
 Execute the classic:
@@ -31,6 +31,13 @@ Virtualenv management for Python:
 ### 3.1) Global installation
 
 This Raspi 3 is dedicated to SuperSid or you do not plan to mix various libraries: install at system level all the libraries.
+You can do so exactly like you would do in linux:
+````
+sudo apt-get install python3-pip
+pip3 install -r requirements.txt
+````
+
+If you prefer to install everythin manually:
 
 ````
     sudo apt-get install python3-matplotlib
