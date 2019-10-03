@@ -27,17 +27,31 @@ Virtualenv management for Python:
 
 3) Installing SuperSID
 ----------------------
+### 3.1) optional virtualenv
 
-### 3.1) Global installation
+This step is optional. Creating your own environment allows to install libraries in all freedom,
+without 'sudo' and ensure you have a coherent and working set of libraries (soundcard).
+If your Raspi is dedicated to SuperSID then you can skip this step and install all globally.
+
+From /home/pi:
+````
+    virtualenv -p /usr/bin/python3.5 supersid.1.5
+    source supersid.1.5/bin/activate
+    cd supersid.1.5
+````
+
+This also ensures that we run in Python3.5.
+
+### 3.2) Global or local installation
 
 This Raspi 3 is dedicated to SuperSid or you do not plan to mix various libraries: install at system level all the libraries.
-You can do so exactly like you would do in linux:
+You can do so exactly like you would do in linux, for an local installation inside the virtual env:
 ````
 sudo apt-get install python3-pip
 pip3 install -r requirements.txt
 ````
 
-If you prefer to install everythin manually:
+Or if you prefer to install everything glabally (manually):
 
 ````
     sudo apt-get install python3-matplotlib
@@ -68,30 +82,6 @@ If you prefer to install everythin manually:
 
 
 
-
-
-
-
-### 3.1) optional virtualenv
-
-This step is optional. Creating your own environment allows to install libraries in all freedom,
-without 'sudo' and ensure you have a coherent and working set of libraries (soundcard).
-If your Raspi is dedicated to SuperSID then you can skip this step and install all globally.
-
-From /home/pi:
-````
-    virtualenv -p /usr/bin/python3.5 supersid.1.5
-    source supersid.1.5/bin/activate
-    cd supersid.1.5
-````
-
-This also ensures that we run in Python3.5.
-
-
-### 3.2) Standard Libraries
-
-
-pip install matplotlib
 
 
 
