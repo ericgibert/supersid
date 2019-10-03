@@ -15,6 +15,7 @@ Note: this program runs on Windows. Tested on Windows 7 and 10.
 - [Execution](#id-section4)
 
 <div id='id-section1'/>
+
 ## Python Requirements ##
 
 Python interpreters are installed as:
@@ -39,9 +40,10 @@ sudo apt-get install python3-pip
 or for Python 2:
 ```
 sudo apt-get install python-pip
-'''
+```
 
 <div id='id-section2'/>
+
 ## Sound Card Configuration ##
 The original SuperSID program uses PyAudio, which works fine on Windows. But for Linux, with ALSA, it is rather frustrating: mode selection (with high sampling rate) is not always successfull, **`jackd`** is requiered but its configuration is not cumbersome.
 
