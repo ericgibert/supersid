@@ -15,16 +15,19 @@ Execute the classic:
 -----------------
 
 Time synchro over the Internet:
-''''
+```
     sudo apt-get install ntpdate ntp
-''''
+```
 Follow tutorial at  https://victorhurdugaci.com/raspberry-pi-sync-date-and-time
 
 Virtualenv management for Python:
 ````
     sudo apt-get install virtualenv
 ````
-
+Numpy also requires a special package (for opening `shared object (.so)` files):
+```
+sudo apt-get install libatlas-base-dev
+```
 3) Installing SuperSID
 ----------------------
 ### 3.1) optional virtualenv
