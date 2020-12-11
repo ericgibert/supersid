@@ -9,7 +9,7 @@ tkSidViewer class implements a graphical user interface for SID based on tkinter
 from __future__ import print_function
 import matplotlib
 # matplotlib.use('TkAgg')
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas, NavigationToolbar2TkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 
 # handle both Python 2 and 3
@@ -62,15 +62,15 @@ class tkSidViewer():
         # FigureCanvas
         self.psd_figure = Figure(facecolor='beige')
         self.canvas = FigureCanvas(self.psd_figure, master=self.tk_root)
-        self.canvas.show()
+        self.canvas.draw()
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        self.toolbar = NavigationToolbar2TkAgg( self.canvas, self.tk_root)
+        self.toolbar = NavigationToolbar2Tk( self.canvas, self.tk_root)
         self.toolbar.update()
         self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
         self.axes = self.psd_figure.add_subplot(111)
-        self.axes.hold(False)
+        #self.axes.hold(False)
 
         # StatusBar
         self.statusbar_txt = tk.StringVar()

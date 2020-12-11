@@ -39,3 +39,6 @@ Data
 *.nja
 .idea
 *.bak
+
+#Virtual Enviroment
+venv/

@@ -4,9 +4,9 @@ Version 1.4 20150801
 
 Implementation of the SuperSID program to record Solar Induced Disturbances.
 
-Program is tested on Fedora 16, 20, 22 on Desktop PC and Debian Wheezy & Pidorra on **Raspberry Pi**.
+Program is tested on Fedora 16, 20, 22, Ubuntu 18.04 on Desktop PC and Debian Wheezy, Buster & Pidorra on **Raspberry Pi**.
  
-Note: this program runs on Windows. Tested on Windows 7.
+Note: this program runs on Windows. Tested on Windows 7 and 10.
 
 ## Table of Content
 - [Python Requirements](#id-section1)
@@ -15,34 +15,35 @@ Note: this program runs on Windows. Tested on Windows 7.
 - [Execution](#id-section4)
 
 <div id='id-section1'/>
+
 ## Python Requirements ##
 
 Python interpreters are installed as:
 - python: Python 2
 - python3: Python 3
 
-To install the necessary modules, you need to be *root* or to prefix the command with  *sudo*.
+To install the necessary modules, you need to be *root* and install all the dependenies listed in `requirements.py`.
 
-**matplotlib** is a key library used by SuperSid. You need to install it either directly or as a dependency as explain below.
+You can install them easily with `pip` using:
+```
+pip3 install -r requirements.txt
+```
+or in Python 2:
+```
+pip install -r requirements.txt
+```
 
-Recommended option: to use SuperSid with text mode and GUI based on tkinter:
-````
-- for Python2: dnf/yum/apt-get install python-matplotlib-tk
-- for Python3: dnf/yum/apt-get install python3-matplotlib-tk
-````
-
-To use SuperSid in text mode only:
-````
- - for Python2: dnf/yum/apt-get install python-matplotlib
- - for Python3: dnf/yum/apt-get install python3-matplotlib
-````
-
-To use SuperSid with GUI based on wxPython:
-````
- - for Python 2 only: dnf/yum/apt-get install python-matplotlib-wx
-````
+If you don't have `pip` installed you can install it by:
+```
+sudo apt-get install python3-pip
+```
+or for Python 2:
+```
+sudo apt-get install python-pip
+```
 
 <div id='id-section2'/>
+
 ## Sound Card Configuration ##
 The original SuperSID program uses PyAudio, which works fine on Windows. But for Linux, with ALSA, it is rather frustrating: mode selection (with high sampling rate) is not always successfull, **`jackd`** is requiered but its configuration is not cumbersome.
 
@@ -56,11 +57,6 @@ Python 3:
  Try to install the package as your distribution might offer it
 ````
  - dnf/yum/apt-get install python3-alsaaudio
-````
-or
-````
-    #pip3 install pyalsaaudio
-
 ````
 
 if you have:
