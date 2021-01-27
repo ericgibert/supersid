@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!python
 """ supersid.py
     version 1.3
     Segregation MVC
