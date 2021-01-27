@@ -30,7 +30,7 @@ supersid.py:
  - Continue recording after interruption
  - Auto adjustment of the interval period for better accuracy
  - New extended file format with time stamp to the 1.000th of second
- - *sidfile.py* can be used as a utility to manipualte SID files
+ - *sidfile.py* can be used as a utility to manipulate SID files
 
 ![tkgui_screenshot01](https://cloud.githubusercontent.com/assets/5303792/9287125/7e65cb9c-4339-11e5-9f5b-4c740b8e8d21.png)
 
