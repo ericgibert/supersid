@@ -97,6 +97,7 @@ class tkSidViewer():
     def get_psd(self, data, NFFT, FS):
         """By calling 'psd' within axes, it both calculates and plots the spectrum"""
         try:
+            self.axes.clear()
             Pxx, freqs = self.axes.psd(data, NFFT = NFFT, Fs = FS)
             self.need_refresh = True
         except RuntimeError as err_re:
