@@ -4,3 +4,4 @@ pyalsaaudio
 pyparsing
 python-dateutil
 six
+pyephem

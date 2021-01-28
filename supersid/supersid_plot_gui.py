@@ -16,7 +16,7 @@ import argparse
 import tkinter as tk
 from tkinter import ttk
 import matplotlib
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas, NavigationToolbar2TkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from matplotlib.ticker import FuncFormatter as ff
 import ephem
@@ -69,7 +69,7 @@ class Plot_Gui(ttk.Frame):
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         self.graph = self.fig.add_subplot(111)
 
-        self.toolbar = NavigationToolbar2TkAgg( self.canvas, self.tk_root)
+        self.toolbar = NavigationToolbar2Tk( self.canvas, self.tk_root)
         self.toolbar.update()
         self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -174,7 +174,7 @@ class Plot_Gui(ttk.Frame):
                 self.graph.axvspan(sid_file.setting.datetime(), sid_file.rising.datetime(),
                            facecolor='blue', alpha=0.1)
 
-        self.canvas.show()
+        self.canvas.draw()
 
     def update_graph(self):
         # Redraw the selected stations on a clear graph
