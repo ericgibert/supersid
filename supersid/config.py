@@ -30,6 +30,9 @@ CALL_SIGN, FREQUENCY, COLOR = 'call_sign', 'frequency', 'color'
 # constant for log_format
 SID_FORMAT, SUPERSID_FORMAT = 'sid_format', 'supersid_format'
 SUPERSID_EXTENDED, BOTH_EXTENDED = 'supersid_extended', 'both_extended' # with 5 decimals timestamp
+# Default value for alsaaudio Device parameter. Should be something the
+# alsaaudio library would never accept.
+DEVICE_DEFAULT = 'FOOBAR1234xyz'
 
 class Config(dict):
     """Dictionary containing the key/values pair read from a .cfg file"""
@@ -80,13 +83,14 @@ class Config(dict):
                                     ('log_type',  str, None),           # 'filtered' or 'raw'
 
                                     ('audio_sampling_rate', int, None),
-                                    ('log_interval', int, None), 
+                                    ('log_interval', int, None),
                                     ('number_of_stations', int, None),
                                     ('scaling_factor', float, None)
                                     ),
 
                       "Capture":   (("Audio", str, 'pyaudio'),          # soundcard: alsaaudio or pyaudio ; server
                                     ("Card", str, 'External'),          # alsaaudio: card name for capture
+                                    ("Device", str, DEVICE_DEFAULT),         # USe instead of card for alsaaudio
                                     ("PeriodSize", int, 128)            # alsaaudio: period size for capture
                                     ),
 
@@ -136,9 +140,9 @@ class Config(dict):
         if "Linux" in self.sectionfound:
             print ("\n*** WARNING***\nSection [Linux] is obsolete. Please replace it by [Capture] in your .cfg files.\n")
 
-        # Getting the stations parameters 
+        # Getting the stations parameters
         self.stations = []  # now defined as a list of dictionaries
-    
+
         for i in range(self['number_of_stations']):
             section = "STATION_" + str(i+1)
             tmpDict = {}
@@ -150,7 +154,7 @@ class Config(dict):
                 self.config_ok = False
                 self.config_err = section + "section is expected but missing from the config file."
                 return
-            except ConfigParser.NoOptionError:   
+            except ConfigParser.NoOptionError:
                 self.config_ok = False
                 self.config_err = section + " does not have the 3 expected parameters in the config file. Please check."
                 return
@@ -198,20 +202,20 @@ class Config(dict):
             self.config_ok = False
             self.config_err = "'log_interval' <= 2. Too fast! Please increase."
             return
-        
+
         # check log_format
         self['log_format'] = self['log_format'].lower()
         if self['log_format'] not in (SID_FORMAT,SUPERSID_FORMAT, SUPERSID_EXTENDED, BOTH_EXTENDED):
             self.config_ok = False
             self.config_err = "'log_format' must be either 'sid_format' or 'supersid_format'/'supersid_extended'."
-            return     
+            return
 
         # Check the 'data_path' validity and create it as a Config instance property
         self.data_path = os.path.normpath(self['data_path'] or Config.DATA_PATH_NAME) + os.sep
         if not os.path.isdir(self.data_path):
             self.config_ok = False
             self.config_err = "'data_path' does not point to a valid directory:\n" + self.data_path
-            return      
+            return
 
         # default audio to pyaudio if not declared
         if "Audio" not in self:

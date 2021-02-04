@@ -2,16 +2,16 @@
 """
     Sampler handles audio data capture, calculating PSD, extracting signal strengths at monitored frequencies,
     saving spectrum and spectrogram (image) to png file
-    
+
     This is pure Model, no wx import possible else Thread conflict
-    
+
     The Sampler class will use on 'device' to capture 1 second of sound.
     This 'device' can be a local sound card:
      - controlled by pyaudio on Windows or other system
      - controlled by alsaaudio on Linux
     or this 'device' can be a remote server
      - client mode accessing server thru TCP/IP socket (to be implemented)
-     
+
     All these 'devices' must implement:
      - __init__: open the 'device' for future capture
      - capture_1sec: obtain one second of sound and return as an array of 'audio_sampling_rate' integers
@@ -23,6 +23,8 @@ from __future__ import print_function   # use the new Python 3 'print' function
 from struct import unpack as st_unpack
 from numpy import array
 
+from config import DEVICE_DEFAULT  # get value from config.py
+
 audioModule=[]
 try:
     import alsaaudio  # for Linux direct sound capture
@@ -32,18 +34,31 @@ try:
     # dnf install portaudio
     # pip3 install sounddevice
 
-    
     class alsaaudio_soundcard():
-        def __init__(self, card, periodsize, audio_sampling_rate):
+        def __init__(self, card, device, periodsize, audio_sampling_rate):
             self.FORMAT = alsaaudio.PCM_FORMAT_S16_LE
             self.audio_sampling_rate = audio_sampling_rate
-            card = 'sysdefault:CARD=' + card  # to add in the .cfg file under [Linux] section
-            self.inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, card)
-            self.inp.setchannels(1)
-            self.inp.setrate(audio_sampling_rate)
-            self.inp.setperiodsize(periodsize)
-            self.inp.setformat(self.FORMAT)
-            self.name = "alsaaudio sound card capture on " + card
+            if device != DEVICE_DEFAULT:
+                print("alsaaudio using device:", device)
+                self.inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE,
+                                         alsaaudio.PCM_NORMAL,
+                                         channels=1,
+                                         rate=audio_sampling_rate,
+                                         format=self.FORMAT,
+                                         periodsize=periodsize,
+                                         device=device)
+                self.name = "alsaaudio sound device capture on " + device
+            else:
+                card = 'sysdefault:CARD=' + card  #.cfg file under [Capture] section
+                print("alsaaudio using card", card)
+                self.inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE,
+                                         alsaaudio.PCM_NORMAL,
+                                         card)
+                self.name = "alsaaudio sound card capture on " + card
+                self.inp.setchannels(1)
+                self.inp.setrate(audio_sampling_rate)
+                self.inp.setperiodsize(periodsize)
+                self.inp.setformat(self.FORMAT)
 
         def capture_1sec(self):
             raw_data = b''
@@ -51,7 +66,7 @@ try:
                 length,data = self.inp.read()
                 if length> 0: raw_data += data
             return array(st_unpack("%ih"%self.audio_sampling_rate, raw_data[:2 * self.audio_sampling_rate]))
-        
+
         def close(self):
             pass  # to check later if there is something to do
 
@@ -61,7 +76,7 @@ try:
             print(len(one_sec),"bytes read from", self.name, one_sec.shape)
             print(one_sec[:10])
             print("Vector sum", one_sec.sum())
-        
+
 except ImportError:
     pass
 
@@ -109,7 +124,7 @@ except ImportError:
 try:
     import pyaudio  # for Linux with jackd OR windows
     audioModule.append("pyaudio")
-    
+
     class pyaudio_soundcard():
         def __init__(self, audio_sampling_rate):
             self.FORMAT = pyaudio.paInt16
@@ -141,7 +156,7 @@ try:
                     #print("IOError reading card:", str(io))
                     pass
             return frames[:expected_number_of_bytes]
-        
+
         def close(self):
             self.pa_stream.stop_stream()
             self.pa_stream.close()
@@ -156,7 +171,7 @@ try:
             is_supported = self.pa_lib.is_format_supported(input_format=self.FORMAT, input_channels=1,
                                                        rate=self.audio_sampling_rate, input_device=0)
             print("expected format is supported?", is_supported)
-            
+
 except ImportError:
     pass
 
@@ -167,7 +182,7 @@ class Sampler():
         self.version = "1.4 20160207"
         self.controller = controller
         self.scaling_factor = controller.config['scaling_factor']
-        
+
         self.audio_sampling_rate = audio_sampling_rate
         self.NFFT = NFFT
         self.sampler_ok = True
@@ -179,6 +194,7 @@ class Sampler():
                 self.capture_device = sounddevice_soundcard(controller.config['Card'], audio_sampling_rate)
             elif controller.config['Audio'] == 'alsaaudio':
                 self.capture_device = alsaaudio_soundcard(controller.config['Card'],
+                                                          controller.config['Device'],
                                                           controller.config['PeriodSize'],
                                                           audio_sampling_rate)
             else:
@@ -214,7 +230,7 @@ class Sampler():
             #scale A/D raw_data to voltage here (we might substract 5v to make the data look more like SID)
             if(self.scaling_factor != 1.0):
                 self.data *= self.scaling_factor
-                
+
         return self.data
 
     def close(self):
@@ -222,8 +238,8 @@ class Sampler():
 
     def display_error_message(self, message):
         msg = "From Sampler object instance:\n" + message + ". Please check.\n"
-        self.controller.viewer.status_display(msg)            
-        
+        self.controller.viewer.status_display(msg)
+
 if __name__ == '__main__':
     print('Possible capture modules:', audioModule)
     print("\nalsaaudio:")
