@@ -35,9 +35,10 @@ class NOAA_flares(object):
         # Earlier year data is available via HTTP.
         # So need to decide how to fetch the data based on the date.
         if int(self.day[:4]) >= 2017:
-            # given day is in the current year --> fetch data by FTP
+            # given day is 2017 or later --> fetch data by FTP
             self.ftp_NOAA()
         else:
+            # given day is 2016 or earlier --> fetch data by https
             # if the file is NOT in the ../PRIVATE/ directory the we need to fetch it first
             # then read line by line to grab the data from the expected day
             file_path = self.http_ngdc()
