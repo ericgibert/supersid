@@ -31,7 +31,10 @@ class NOAA_flares(object):
         today = date.today()
         self.XRAlist = []
 
-        if today.year==int(self.day[:4]):
+        # Starting in year 2017, NOAA makes the data available via FTP.
+        # Earlier year data is available via HTTP.
+        # So need to decide how to fetch the data based on the date.
+        if int(self.day[:4]) >= 2017:
             # given day is in the current year --> fetch data by FTP
             self.ftp_NOAA()
         else:
@@ -134,4 +137,6 @@ if __name__ == '__main__':
     flare = NOAA_flares("20140104")
     print(flare.day, "\n", flare.print_XRAlist(), "\n")
     flare = NOAA_flares("20170104")
+    print(flare.day, "\n", flare.print_XRAlist(), "\n")
+    flare = NOAA_flares("20201211")
     print(flare.day, "\n", flare.print_XRAlist(), "\n")
