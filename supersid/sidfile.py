@@ -385,12 +385,12 @@ class SidFile():
             dmin[length+bema_wing:length+bema_wing*2] = dmin[length+bema_wing-1]
             # Moving Average. This actually truncates array to original size
             #daverage = movavg(dmin, (bema_wing*2+1))
-            def movang(a, n) :
+            def movavg(a, n) :
                 ret = np.cumsum(a, dtype=float)
                 ret[n:] = ret[n:] - ret[:-n]
                 return ret[n - 1:] / n
-            daverage = movavg(dmin, (bema_wing*2+1))     
-         
+            daverage = movavg(dmin, (bema_wing*2+1))
+
             if gmt_offset == 0:
                 return daverage
             else:
